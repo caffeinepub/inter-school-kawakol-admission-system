@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "School admission form with multiple sections including Parent's Details and a Declaration section at the end. The Declaration section displays both English and Hindi versions of the school declaration text, with a checkbox for parent/guardian acknowledgement.",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-or-update-the-guardiandeclarationsection-component-to-display-both-the-english-and-hindi-versions-of-the-declaration-text-stacked-vertically-english-first-then-hindi-followed-by-a-checkbox-for-the-parent-guardian-to-acknowledge-and-agree-to-the-declaration-the-english-text-is-all-the-information-given-by-my-son-daughter-in-this-form-and-all-the-certificates-attached-are-true-if-found-false-the-school-administration-will-have-the-right-to-take-all-legal-action-i-will-not-appeal-against-this-my-son-daughter-will-follow-the-orders-instructions-and-rules-issued-by-the-school-administration-if-this-is-not-done-the-school-administration-will-be-free-to-expel-the-student-the-school-administration-will-not-be-responsible-for-getting-or-not-getting-government-benefits-75-attendance-is-mandatory-and-must-be-present-in-the-school-uniform-dress-the-hindi-text-is-75-the-checkbox-label-should-read-i-we-have-read-and-agree-to-the-above-declaration-in-english-and-in-hindi-both-visible-the-checkbox-state-must-be-tracked-in-the-form-state",
+      "title": "Create or update the GuardianDeclarationSection component to display both the English and Hindi versions of the declaration text, stacked vertically (English first, then Hindi), followed by a checkbox for the parent/guardian to acknowledge and agree to the declaration. The English text is: \"All the information given by my son/daughter in this form and all the certificates attached are true. If found false, the school administration will have the right to take all legal action. I will not appeal against this. My son/daughter will follow the orders, instructions and rules issued by the school administration. If this is not done, the school administration will be free to expel the student. The school administration will not be responsible for getting or not getting government benefits. 75% attendance is mandatory and must be present in the school uniform (dress)\". The Hindi text is: \"मेरे बेटे/बेटी द्वारा इस फॉर्म में दी गई सभी जानकारी और संलग्न सभी प्रमाण पत्र सत्य हैं। यदि असत्य पाया गया तो विद्यालय प्रशासन को सभी कानूनी कार्रवाई करने का अधिकार होगा। मैं इसके विरुद्ध अपील नहीं करूँगा/करूँगी। मेरा बेटा/बेटी विद्यालय प्रशासन द्वारा जारी आदेशों, निर्देशों और नियमों का पालन करेगा/करेगी। यदि ऐसा नहीं किया गया, तो विद्यालय प्रशासन छात्र को निष्कासित करने के लिए स्वतंत्र होगा। सरकारी लाभ मिलने या न मिलने के लिए विद्यालय प्रशासन जिम्मेदार नहीं होगा। 75% उपस्थिति अनिवार्य है और विद्यालय की वर्दी (ड्रेस) में उपस्थित रहना आवश्यक है।\". The checkbox label should read: \"I / We have read and agree to the above declaration\" (in English) and \"मैंने/हमने उपरोक्त घोषणा पढ़ी है और सहमत हैं\" (in Hindi), both visible. The checkbox state must be tracked in the form state.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add Declaration section at the end of the form with English and Hindi text and a parent/guardian acknowledgement checkbox",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Integrate the GuardianDeclarationSection into AdmissionFormPage.tsx so it renders as the final section of the multi-section admission form. Wire the declaration checkbox value into the form state object. The form submission should not be blocked solely by this checkbox (it is an acknowledgement field, not a hard validation gate), but its value should be included when saving draft or submitting.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "School Admission Form",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

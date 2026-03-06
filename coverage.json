@@ -1,0 +1,46 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-28T06:56:23.763Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 2,
+    "implemented": 1,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Create or update the GuardianDeclarationSection component to display both the English and Hindi versions of the declaration text, stacked vertically (English first, then Hindi), followed by a checkbox for the parent/guardian to acknowledge and agree to the declaration. The English text is: \"All the information given by my son/daughter in this form and all the certificates attached are true. If found false, the school administration will have the right to take all legal action. I will not appeal against this. My son/daughter will follow the orders, instructions and rules issued by the school administration. If this is not done, the school administration will be free to expel the student. The school administration will not be responsible for getting or not getting government benefits. 75% attendance is mandatory and must be present in the school uniform (dress)\". The Hindi text is: \"मेरे बेटे/बेटी द्वारा इस फॉर्म में दी गई सभी जानकारी और संलग्न सभी प्रमाण पत्र सत्य हैं। यदि असत्य पाया गया तो विद्यालय प्रशासन को सभी कानूनी कार्रवाई करने का अधिकार होगा। मैं इसके विरुद्ध अपील नहीं करूँगा/करूँगी। मेरा बेटा/बेटी विद्यालय प्रशासन द्वारा जारी आदेशों, निर्देशों और नियमों का पालन करेगा/करेगी। यदि ऐसा नहीं किया गया, तो विद्यालय प्रशासन छात्र को निष्कासित करने के लिए स्वतंत्र होगा। सरकारी लाभ मिलने या न मिलने के लिए विद्यालय प्रशासन जिम्मेदार नहीं होगा। 75% उपस्थिति अनिवार्य है और विद्यालय की वर्दी (ड्रेस) में उपस्थित रहना आवश्यक है।\". The checkbox label should read: \"I / We have read and agree to the above declaration\" (in English) and \"मैंने/हमने उपरोक्त घोषणा पढ़ी है और सहमत हैं\" (in Hindi), both visible. The checkbox state must be tracked in the form state.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/GuardianDeclarationSection.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/GuardianDeclarationSection.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Integrate the GuardianDeclarationSection into AdmissionFormPage.tsx so it renders as the final section of the multi-section admission form. Wire the declaration checkbox value into the form state object. The form submission should not be blocked solely by this checkbox (it is an acknowledgement field, not a hard validation gate), but its value should be included when saving draft or submitting.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/pages/AdmissionFormPage.tsx"
+        ],
+        "matchedFiles": []
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/components/GuardianDeclarationSection.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

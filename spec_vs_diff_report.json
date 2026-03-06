@@ -1,0 +1,32 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-28T06:56:23.761Z",
+  "summary": "The diff shows GuardianDeclarationSection.tsx has been created/updated with the full English and Hindi declaration text, bilingual checkbox label, and checkbox state tracking. However, AdmissionFormPage.tsx is listed in the file summaries but its actual diff content is not shown — the summary description only mentions parent fields updates and does not mention GuardianDeclarationSection integration. The project_state.json still shows AR-2 and AR-3 as 'pending', suggesting REQ-2 integration into AdmissionFormPage.tsx may not have been completed.",
+  "missing_requirements": [
+    {
+      "id": "REQ-2",
+      "requirement": "Integrate the GuardianDeclarationSection into AdmissionFormPage.tsx so it renders as the final section of the multi-section admission form, wire the declaration checkbox value into the form state object, and include its value in save-draft and submit actions.",
+      "reason": "The diff does not include any changes to AdmissionFormPage.tsx. The file summary for AdmissionFormPage.tsx only mentions updates for parent fields and makes no mention of GuardianDeclarationSection being imported or rendered. The project_state.json also lists AR-3 (corresponding to REQ-2) as 'pending'.",
+      "evidence": [
+        "frontend/src/pages/AdmissionFormPage.tsx",
+        "project_state.json"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Asterisk (*) appended to both checkbox label lines, implying a required field marker.",
+      "reason": "The build request explicitly states the declaration checkbox should NOT be a hard required validation gate, and the requirement specifies the label text without any asterisk. Adding asterisks visually implies the field is required, which contradicts the non-goal of making it a hard validation gate.",
+      "evidence": [
+        "frontend/src/components/GuardianDeclarationSection.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.82,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/src/components/GuardianDeclarationSection.tsx",
+    "project_state.json"
+  ]
+}
