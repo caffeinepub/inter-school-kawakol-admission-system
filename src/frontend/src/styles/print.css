@@ -1,0 +1,45 @@
+@media print {
+  .no-print,
+  header,
+  footer,
+  button,
+  .print-hide {
+    display: none !important;
+  }
+
+  .print-section {
+    page-break-inside: avoid;
+  }
+
+  .print-header {
+    margin-bottom: 2rem;
+  }
+
+  .print-logo {
+    width: 80px !important;
+    height: 80px !important;
+    object-fit: contain;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+
+  /* Ensure student photo prints correctly */
+  img {
+    max-width: 100%;
+    page-break-inside: avoid;
+  }
+
+  /* Photo container styling for print */
+  .w-32.h-40 {
+    width: 128px !important;
+    height: 160px !important;
+  }
+}
