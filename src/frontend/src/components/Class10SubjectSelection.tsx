@@ -32,10 +32,7 @@ export default function Class10SubjectSelection({
     "Dance",
   ];
 
-  const toggleSubject = (
-    category: "mil" | "sil" | "compulsory",
-    subject: string,
-  ) => {
+  const toggleSubject = (category: "compulsory", subject: string) => {
     const currentSubjects = formData.subjects?.[category] || [];
     const newSubjects = currentSubjects.includes(subject)
       ? currentSubjects.filter((s) => s !== subject)
@@ -56,44 +53,67 @@ export default function Class10SubjectSelection({
         <CardTitle>Class 10th Subject Selection</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* M.I.L. - Single Select */}
         <div className="space-y-3">
           <Label className="text-base font-semibold">
-            M.I.L. Subject's (Select Multiple) *
+            M.I.L. Subject (Select One) *
           </Label>
-          <div className="grid grid-cols-2 gap-3">
-            {milSubjects.map((subject) => (
-              <div key={subject} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`mil-${subject}`}
-                  checked={formData.subjects?.mil?.includes(subject) || false}
-                  onCheckedChange={() => toggleSubject("mil", subject)}
-                  disabled={disabled}
-                />
-                <Label htmlFor={`mil-${subject}`}>{subject}</Label>
-              </div>
-            ))}
-          </div>
+          <RadioGroup
+            value={formData.subjects?.mil?.[0] || ""}
+            onValueChange={(value) =>
+              setFormData({
+                ...formData,
+                subjects: { ...formData.subjects!, mil: [value] },
+              })
+            }
+            disabled={disabled}
+          >
+            <div className="grid grid-cols-2 gap-3">
+              {milSubjects.map((subject) => (
+                <div key={subject} className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value={subject}
+                    id={`mil-${subject}`}
+                    data-ocid={"class10.mil.radio"}
+                  />
+                  <Label htmlFor={`mil-${subject}`}>{subject}</Label>
+                </div>
+              ))}
+            </div>
+          </RadioGroup>
         </div>
 
+        {/* S.I.L. - Single Select */}
         <div className="space-y-3">
           <Label className="text-base font-semibold">
-            S.I.L. Subject's (Select Multiple) *
+            S.I.L. Subject (Select One) *
           </Label>
-          <div className="grid grid-cols-2 gap-3">
-            {silSubjects.map((subject) => (
-              <div key={subject} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`sil-${subject}`}
-                  checked={formData.subjects?.sil?.includes(subject) || false}
-                  onCheckedChange={() => toggleSubject("sil", subject)}
-                  disabled={disabled}
-                />
-                <Label htmlFor={`sil-${subject}`}>{subject}</Label>
-              </div>
-            ))}
-          </div>
+          <RadioGroup
+            value={formData.subjects?.sil?.[0] || ""}
+            onValueChange={(value) =>
+              setFormData({
+                ...formData,
+                subjects: { ...formData.subjects!, sil: [value] },
+              })
+            }
+            disabled={disabled}
+          >
+            <div className="grid grid-cols-2 gap-3">
+              {silSubjects.map((subject) => (
+                <div key={subject} className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value={subject}
+                    id={`sil-${subject}`}
+                    data-ocid={"class10.sil.radio"}
+                  />
+                  <Label htmlFor={`sil-${subject}`}>{subject}</Label>
+                </div>
+              ))}
+            </div>
+          </RadioGroup>
         </div>
 
+        {/* Compulsory - Multi Select */}
         <div className="space-y-3">
           <Label className="text-base font-semibold">
             Compulsory Subject's (Select Multiple) *
@@ -108,6 +128,7 @@ export default function Class10SubjectSelection({
                   }
                   onCheckedChange={() => toggleSubject("compulsory", subject)}
                   disabled={disabled}
+                  data-ocid={"class10.compulsory.checkbox"}
                 />
                 <Label htmlFor={`comp-${subject}`}>{subject}</Label>
               </div>
@@ -115,9 +136,10 @@ export default function Class10SubjectSelection({
           </div>
         </div>
 
+        {/* Extra Subject - Optional Single Select */}
         <div className="space-y-3">
           <Label className="text-base font-semibold">
-            Extra Subject (Select One) *
+            Extra Subject (Select One - Optional)
           </Label>
           <RadioGroup
             value={formData.subjects?.extra || ""}
@@ -132,7 +154,11 @@ export default function Class10SubjectSelection({
             <div className="grid grid-cols-2 gap-3">
               {extraSubjects.map((subject) => (
                 <div key={subject} className="flex items-center space-x-2">
-                  <RadioGroupItem value={subject} id={`extra-${subject}`} />
+                  <RadioGroupItem
+                    value={subject}
+                    id={`extra-${subject}`}
+                    data-ocid={"class10.extra.radio"}
+                  />
                   <Label htmlFor={`extra-${subject}`}>{subject}</Label>
                 </div>
               ))}

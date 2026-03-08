@@ -65,14 +65,15 @@ export default function PrintableAdmissionForm({
 
   const getPassingDivisionLabel = (division: string) => {
     const divisionMap: Record<string, string> = {
-      first: "First",
-      second: "Second",
-      third: "Third",
+      first: "First Division",
+      second: "Second Division",
+      third: "Third Division",
     };
     return divisionMap[division] || division;
   };
 
-  const getStateLabel = (state: string) => {
+  const getStateLabel = (state: string | undefined) => {
+    if (!state) return "-";
     const stateMap: Record<string, string> = {
       bihar: "Bihar",
       jharkhand: "Jharkhand",
@@ -90,498 +91,581 @@ export default function PrintableAdmissionForm({
     return streamMap[stream] || stream;
   };
 
+  const val = (v: string | undefined | null, fallback = "-") =>
+    v?.trim() || fallback;
+
+  // Helper field display
+  const Field = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string | undefined | null;
+  }) => (
+    <div style={{ marginBottom: "3px" }}>
+      <div
+        className="print-field-label"
+        style={{
+          fontSize: "7pt",
+          fontWeight: 600,
+          color: "#555",
+          lineHeight: "1.2",
+        }}
+      >
+        {label}
+      </div>
+      <div
+        className="print-field-value"
+        style={{
+          fontSize: "8pt",
+          fontWeight: 500,
+          borderBottom: "1px solid #bbb",
+          minHeight: "13px",
+          paddingBottom: "1px",
+          wordBreak: "break-word",
+          lineHeight: "1.3",
+        }}
+      >
+        {val(value)}
+      </div>
+    </div>
+  );
+
+  // Section heading
+  const SectionTitle = ({ title }: { title: string }) => (
+    <div
+      style={{
+        fontSize: "8.5pt",
+        fontWeight: 700,
+        backgroundColor: "#e8e8f0",
+        color: "#333",
+        padding: "2px 6px",
+        marginBottom: "4px",
+        marginTop: "6px",
+        borderLeft: "3px solid #4444aa",
+      }}
+    >
+      {title}
+    </div>
+  );
+
   return (
     <Card className="print-section">
       <CardHeader className="no-print">
         <div className="flex items-center justify-between">
-          <CardTitle>Admission Form</CardTitle>
-          <Button onClick={handlePrint} variant="outline">
+          <CardTitle>Admission Form - Print View</CardTitle>
+          <Button
+            onClick={handlePrint}
+            variant="outline"
+            data-ocid="print.primary_button"
+          >
             <Printer className="mr-2 h-4 w-4" />
             Print Form
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        {/* Print Header with Logo */}
-        <div className="print-header text-center mb-8 border-b-2 border-primary pb-6">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <img
-              src="/assets/generated/school-logo.dim_1024x1024.png"
-              alt="ISK Logo"
-              className="h-20 w-20 object-contain print-logo"
-            />
-            <div>
-              <h1 className="text-3xl font-bold text-primary">
-                INTER SCHOOL KAWAKOL
-              </h1>
-              <p className="text-lg text-muted-foreground">Nawada, Bihar</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                School Code: 82021 &amp; 23054 | UDIS Code: 10360504011
-              </p>
-            </div>
-          </div>
-          <h2 className="text-xl font-semibold mt-4">
-            Admission Application Form
-          </h2>
-          <p className="text-sm text-muted-foreground">Academic Year 2024-25</p>
-        </div>
-
-        {/* Student Photo and Basic Info Section */}
-        <div className="mb-6 flex gap-6">
-          <div className="flex-shrink-0">
-            {form.photo ? (
+        {/* ===== PRINT LAYOUT ===== */}
+        <div
+          id="print-content"
+          style={{
+            fontFamily: "Arial, sans-serif",
+            fontSize: "8pt",
+            color: "#111",
+          }}
+        >
+          {/* Header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              borderBottom: "2px solid #4444aa",
+              paddingBottom: "6px",
+              marginBottom: "6px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <img
-                src={form.photo.getDirectURL()}
-                alt="Student"
-                className="w-32 h-40 object-cover border-2 border-primary rounded"
+                src="/assets/generated/school-logo.dim_1024x1024.png"
+                alt="ISK Logo"
+                className="print-logo"
+                style={{ width: "60px", height: "60px", objectFit: "contain" }}
               />
-            ) : (
-              <div className="w-32 h-40 border-2 border-dashed border-muted-foreground/50 rounded flex items-center justify-center bg-muted/30">
-                <p className="text-xs text-muted-foreground text-center px-2">
-                  Photo Not Uploaded
-                </p>
-              </div>
-            )}
-          </div>
-          <div className="flex-1">
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-semibold text-muted-foreground">
-                  Class
-                </p>
-                <p className="text-base font-medium">
-                  {getClassLabel(student._class)}
-                </p>
+                <div
+                  style={{ fontSize: "13pt", fontWeight: 700, color: "#222" }}
+                >
+                  INTER SCHOOL KAWAKOL
+                </div>
+                <div style={{ fontSize: "8pt", color: "#555" }}>
+                  Nawada, Bihar
+                </div>
+                <div style={{ fontSize: "7pt", color: "#666" }}>
+                  School Code: 82021 &amp; 23054 | UDIS: 10360504011
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-muted-foreground">
-                  Application Status
-                </p>
-                <p className="text-base font-medium capitalize">
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  fontSize: "10pt",
+                  fontWeight: 700,
+                  color: "#4444aa",
+                  borderBottom: "1px solid #4444aa",
+                  paddingBottom: "2px",
+                  marginBottom: "2px",
+                }}
+              >
+                APPLICATION FORM FOR ADMISSION
+              </div>
+              <div style={{ fontSize: "7pt", color: "#555" }}>
+                प्रवेश हेतु आवेदन पत्र
+              </div>
+              <div style={{ fontSize: "7.5pt", marginTop: "4px" }}>
+                Class of Admission:{" "}
+                <strong>{getClassLabel(student._class)}</strong>
+              </div>
+              <div style={{ fontSize: "7.5pt" }}>
+                Status:{" "}
+                <strong style={{ textTransform: "capitalize" }}>
                   {student.status}
-                </p>
+                </strong>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-muted-foreground">
-                  Registration Date
-                </p>
-                <p className="text-base font-medium">
-                  {new Date(
-                    Number(student.registrationDate) / 1000000,
-                  ).toLocaleDateString()}
-                </p>
+              <div style={{ fontSize: "7pt", color: "#555" }}>
+                Date:{" "}
+                {new Date(
+                  Number(student.registrationDate) / 1000000,
+                ).toLocaleDateString("en-IN")}
               </div>
-              <div>
-                <p className="text-sm font-semibold text-muted-foreground">
-                  Email
-                </p>
-                <p className="text-base font-medium">{student.email}</p>
+            </div>
+            {/* Photo */}
+            <div style={{ textAlign: "center" }}>
+              {form.photo ? (
+                <img
+                  src={form.photo.getDirectURL()}
+                  alt="Student"
+                  style={{
+                    width: "80px",
+                    height: "100px",
+                    objectFit: "cover",
+                    border: "1px solid #888",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "80px",
+                    height: "100px",
+                    border: "1px dashed #888",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "7pt",
+                    color: "#888",
+                    textAlign: "center",
+                    padding: "4px",
+                  }}
+                >
+                  Paste Photo Here
+                </div>
+              )}
+              <div
+                style={{ fontSize: "6.5pt", color: "#555", marginTop: "2px" }}
+              >
+                Applicant Photo
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Personal Details */}
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-primary border-b border-primary/30 pb-2 mb-4">
-            Personal Details
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Student Name
-              </p>
-              <p className="text-base">{form.studentName}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Date of Birth
-              </p>
-              <p className="text-base">
-                {form.dateOfBirth
+          {/* ---- SECTION 1: Personal Details ---- */}
+          <SectionTitle title="1. Personal Details — व्यक्तिगत विवरण" />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: "3px 10px",
+            }}
+          >
+            <Field
+              label="Student Name (In Capital Letters)"
+              value={form.studentName}
+            />
+            <Field
+              label="Father's Name (In Capital Letters)"
+              value={form.fatherName}
+            />
+            <Field
+              label="Mother's Name (In Capital Letters)"
+              value={form.motherName}
+            />
+            <Field
+              label="Date of Birth (DOB)"
+              value={
+                form.dateOfBirth
                   ? new Date(
                       Number(form.dateOfBirth) / 1000000,
-                    ).toLocaleDateString()
-                  : ""}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Gender
-              </p>
-              <p className="text-base">{getGenderLabel(form.gender)}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Category
-              </p>
-              <p className="text-base">{getCategoryLabel(form.category)}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Aadhar Number
-              </p>
-              <p className="text-base">{form.aadharNumber}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Annual Family Income
-              </p>
-              <p className="text-base">{form.annualFamilyIncome}</p>
-            </div>
+                    ).toLocaleDateString("en-IN")
+                  : "-"
+              }
+            />
+            <Field label="Gender (लिंग)" value={getGenderLabel(form.gender)} />
+            <Field
+              label="Category (जाति श्रेणी)"
+              value={getCategoryLabel(form.category)}
+            />
+            <Field
+              label="Physically Handicapped (शारीरिक रूप से विकलांग)"
+              value={form.physicallyHandicapped ? "Yes" : "No"}
+            />
             {form.physicallyHandicapped && (
               <>
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    Handicap Type
-                  </p>
-                  <p className="text-base">{form.handicapType || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    Handicap Percentage
-                  </p>
-                  <p className="text-base">
-                    {form.handicapPercentage
+                <Field label="Handicap Type" value={form.handicapType} />
+                <Field
+                  label="Handicap Percentage (%)"
+                  value={
+                    form.handicapPercentage
                       ? `${Number(form.handicapPercentage)}%`
-                      : "-"}
-                  </p>
-                </div>
+                      : "-"
+                  }
+                />
               </>
             )}
+            <Field
+              label="Student Aadhaar Number (आधार नंबर)"
+              value={form.aadharNumber}
+            />
+            <Field
+              label="Annual Family Income (वार्षिक आय)"
+              value={form.annualFamilyIncome}
+            />
+            <Field label="Mobile Number (मोबाइल)" value={form.mobileNumber} />
+            <Field label="Email ID (ईमेल)" value={form.emailId} />
           </div>
-        </div>
 
-        {/* Student Identifiers & Contact */}
-        {(form.studentPen ||
-          form.apparNumber ||
-          form.eShikshakoshNumber ||
-          form.studentPhone ||
-          form.studentEmail) && (
-          <div className="mb-6">
-            <h3 className="text-lg font-bold text-primary border-b border-primary/30 pb-2 mb-4">
-              Student Identifiers &amp; Contact
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              {form.studentPen && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    Student PEN
-                  </p>
-                  <p className="text-base">{form.studentPen}</p>
-                </div>
-              )}
-              {form.apparNumber && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    APPAR Number
-                  </p>
-                  <p className="text-base">{form.apparNumber}</p>
-                </div>
-              )}
-              {form.eShikshakoshNumber && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    E-Shikshakosh Number
-                  </p>
-                  <p className="text-base">{form.eShikshakoshNumber}</p>
-                </div>
-              )}
-              {form.studentPhone && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    Student Phone
-                  </p>
-                  <p className="text-base">{form.studentPhone}</p>
-                </div>
-              )}
-              {form.studentEmail && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    Student Email
-                  </p>
-                  <p className="text-base">{form.studentEmail}</p>
-                </div>
-              )}
-            </div>
+          {/* ---- SECTION 2: Student Identifiers ---- */}
+          <SectionTitle title="2. Student Identifiers — छात्र पहचान संख्या" />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: "3px 10px",
+            }}
+          >
+            <Field
+              label="Student PEN (11 characters)"
+              value={form.studentPen}
+            />
+            <Field
+              label="APPAR Number (12 characters)"
+              value={form.apparNumber}
+            />
+            <Field
+              label="E-Shikshakosh Number (15 characters)"
+              value={form.eShikshakoshNumber}
+            />
+            <Field label="Student Phone" value={form.studentPhone} />
+            <Field label="Student Email" value={form.studentEmail} />
           </div>
-        )}
 
-        {/* Parent's Details */}
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-primary border-b border-primary/30 pb-2 mb-4">
-            Parent's Details
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Father's Name
-              </p>
-              <p className="text-base">{form.fathersName || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Mother's Name
-              </p>
-              <p className="text-base">{form.mothersName || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Father's Occupation
-              </p>
-              <p className="text-base">{form.fathersOccupation || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Mother's Occupation
-              </p>
-              <p className="text-base">{form.mothersOccupation || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Father's Contact
-              </p>
-              <p className="text-base">{form.fathersContact || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Mother's Contact
-              </p>
-              <p className="text-base">{form.mothersContact || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Father's Name as per Aadhaar
-              </p>
-              <p className="text-base">{form.fathersNameAsPerAadhaar || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Mother's Name as per Aadhaar
-              </p>
-              <p className="text-base">{form.mothersNameAsPerAadhaar || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Father's Aadhaar Card Number
-              </p>
-              <p className="text-base">{form.fatherAadhar || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Mother's Aadhaar Card Number
-              </p>
-              <p className="text-base">{form.motherAadhar || "-"}</p>
-            </div>
+          {/* ---- SECTION 3: Parent's Details ---- */}
+          <SectionTitle title="3. Parent's Details — अभिभावक विवरण" />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "3px 10px",
+            }}
+          >
+            <Field label="Father's Name" value={form.fathersName} />
+            <Field label="Mother's Name" value={form.mothersName} />
+            <Field label="Father's Occupation" value={form.fathersOccupation} />
+            <Field label="Mother's Occupation" value={form.mothersOccupation} />
+            <Field label="Father's Contact" value={form.fathersContact} />
+            <Field
+              label="Mother's Contact"
+              value={form.mothersContact || "—"}
+            />
+            <Field
+              label="Father's Name as per Aadhaar"
+              value={form.fathersNameAsPerAadhaar}
+            />
+            <Field
+              label="Mother's Name as per Aadhaar"
+              value={form.mothersNameAsPerAadhaar}
+            />
+            <Field
+              label="Father's Aadhaar Card Number"
+              value={form.fatherAadhar}
+            />
+            <Field
+              label="Mother's Aadhaar Card Number"
+              value={form.motherAadhar}
+            />
           </div>
-        </div>
 
-        {/* Bank Details */}
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-primary border-b border-primary/30 pb-2 mb-4">
-            Bank Details
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Account Holder's Name
-              </p>
-              <p className="text-base">{form.accountHolderName}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Bank Account Number
-              </p>
-              <p className="text-base">{form.bankAccountNumber}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                IFSC Code
-              </p>
-              <p className="text-base">{form.ifscCode}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Bank Name
-              </p>
-              <p className="text-base">{getBankNameLabel(form.bankName)}</p>
-            </div>
+          {/* ---- SECTION 4: Bank Details ---- */}
+          <SectionTitle title="4. Bank Details — बैंक विवरण" />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr 1fr",
+              gap: "3px 10px",
+            }}
+          >
+            <Field
+              label="Account Holder's Name"
+              value={form.accountHolderName}
+            />
+            <Field
+              label="Bank Account Number (खाता संख्या)"
+              value={form.bankAccountNumber}
+            />
+            <Field label="IFSC Code (आईएफएससी)" value={form.ifscCode} />
+            <Field
+              label="Bank Name (बैंक का नाम)"
+              value={getBankNameLabel(form.bankName)}
+            />
           </div>
-        </div>
 
-        {/* Previous Exam Details */}
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-primary border-b border-primary/30 pb-2 mb-4">
-            Previous Exam Details
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Previous Exam
-              </p>
-              <p className="text-base">{form.previousExam}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Roll Number
-              </p>
-              <p className="text-base">{form.previousRollNo}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                School Name
-              </p>
-              <p className="text-base">{form.previousSchool}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Passing Year
-              </p>
-              <p className="text-base">{form.passingYear?.toString()}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Marks Obtained
-              </p>
-              <p className="text-base">{form.marksObtained?.toString()}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Division
-              </p>
-              <p className="text-base">
-                {getPassingDivisionLabel(form.passingDivision)}
-              </p>
-            </div>
+          {/* ---- SECTION 5: Previous Exam ---- */}
+          <SectionTitle title="5. Qualifying Exam Details — पिछली परीक्षा विवरण" />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: "3px 10px",
+            }}
+          >
+            <Field
+              label="Previous Exam Passed (पिछला कक्षा)"
+              value={form.previousExam}
+            />
+            <Field
+              label="Roll No. of Previous Class"
+              value={form.previousRollNo}
+            />
+            <Field
+              label="School Name (स्कूल का नाम)"
+              value={form.previousSchool}
+            />
+            <Field
+              label="Passing Year (उत्तीर्ण वर्ष)"
+              value={form.passingYear?.toString()}
+            />
+            <Field
+              label="Marks Obtained (प्राप्त अंक)"
+              value={form.marksObtained?.toString()}
+            />
+            <Field
+              label="Division (श्रेणी)"
+              value={getPassingDivisionLabel(form.passingDivision)}
+            />
           </div>
-        </div>
 
-        {/* Address Details */}
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-primary border-b border-primary/30 pb-2 mb-4">
-            Address Details
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Village
-              </p>
-              <p className="text-base">{form.address?.village}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Post Office
-              </p>
-              <p className="text-base">{form.address?.postOffice}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Police Station
-              </p>
-              <p className="text-base">{form.address?.policeStation}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Block
-              </p>
-              <p className="text-base">{form.address?.block}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                District
-              </p>
-              <p className="text-base">{form.address?.district}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                State
-              </p>
-              <p className="text-base">{getStateLabel(form.address?.state)}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">
-                Pin Code
-              </p>
-              <p className="text-base">{form.address?.pinCode}</p>
-            </div>
+          {/* ---- SECTION 6: Address ---- */}
+          <SectionTitle title="6. Address — पता" />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr 1fr",
+              gap: "3px 10px",
+            }}
+          >
+            <Field label="Village (गाँव)" value={form.address?.village} />
+            <Field
+              label="Post Office (डाकघर)"
+              value={form.address?.postOffice}
+            />
+            <Field
+              label="Police Station (पुलिस स्टेशन)"
+              value={form.address?.policeStation}
+            />
+            <Field label="Block (ब्लॉक)" value={form.address?.block} />
+            <Field label="District (जिला)" value={form.address?.district} />
+            <Field
+              label="State (राज्य)"
+              value={getStateLabel(form.address?.state)}
+            />
+            <Field label="Pin Code (पिन कोड)" value={form.address?.pinCode} />
           </div>
-        </div>
 
-        {/* Subject Selection */}
-        {form.subjects && (
-          <div className="mb-6">
-            <h3 className="text-lg font-bold text-primary border-b border-primary/30 pb-2 mb-4">
-              Subject Selection
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              {form.subjects.stream && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    Stream
-                  </p>
-                  <p className="text-base">
-                    {getStreamLabel(form.subjects.stream)}
-                  </p>
-                </div>
-              )}
-              {form.subjects.mil && form.subjects.mil.length > 0 && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    M.I.L. Subjects
-                  </p>
-                  <p className="text-base">{form.subjects.mil.join(", ")}</p>
-                </div>
-              )}
-              {form.subjects.sil && form.subjects.sil.length > 0 && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    S.I.L. Subjects
-                  </p>
-                  <p className="text-base">{form.subjects.sil.join(", ")}</p>
-                </div>
-              )}
-              {form.subjects.compulsory &&
-                form.subjects.compulsory.length > 0 && (
-                  <div>
-                    <p className="text-sm font-semibold text-muted-foreground">
-                      Compulsory Subjects
-                    </p>
-                    <p className="text-base">
-                      {form.subjects.compulsory.join(", ")}
-                    </p>
-                  </div>
+          {/* ---- SECTION 7: Subject Selection ---- */}
+          {form.subjects && (
+            <>
+              <SectionTitle title="7. Subject Selection — विषय चयन" />
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  gap: "3px 10px",
+                }}
+              >
+                {form.subjects.stream && (
+                  <Field
+                    label="Stream (धारा)"
+                    value={getStreamLabel(form.subjects.stream)}
+                  />
                 )}
-              {form.subjects.extra && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    Extra Subject
-                  </p>
-                  <p className="text-base">{form.subjects.extra}</p>
-                </div>
-              )}
-              {form.subjects.extraSubjects && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">
-                    Extra Subjects
-                  </p>
-                  <p className="text-base">{form.subjects.extraSubjects}</p>
-                </div>
-              )}
+                {form.subjects.mil && form.subjects.mil.length > 0 && (
+                  <Field
+                    label="M.I.L. Subject"
+                    value={form.subjects.mil.join(", ")}
+                  />
+                )}
+                {form.subjects.sil && form.subjects.sil.length > 0 && (
+                  <Field
+                    label="S.I.L. Subject"
+                    value={form.subjects.sil.join(", ")}
+                  />
+                )}
+                {form.subjects.compulsory &&
+                  form.subjects.compulsory.length > 0 && (
+                    <Field
+                      label="Compulsory Subjects (अनिवार्य विषय)"
+                      value={form.subjects.compulsory.join(", ")}
+                    />
+                  )}
+                {form.subjects.extra && (
+                  <Field
+                    label="Extra Subject (अतिरिक्त विषय)"
+                    value={form.subjects.extra}
+                  />
+                )}
+                {form.subjects.extraSubjects && (
+                  <Field
+                    label="Extra Subjects (11th/12th)"
+                    value={form.subjects.extraSubjects}
+                  />
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ---- SECTION 8: Declaration ---- */}
+          <SectionTitle title="8. Declaration / घोषणा (अभिभावक का घोषणा)" />
+          <div
+            style={{
+              border: "1px solid #bbb",
+              padding: "5px 8px",
+              marginBottom: "4px",
+              fontSize: "7pt",
+              lineHeight: "1.5",
+            }}
+          >
+            <p style={{ marginBottom: "3px" }}>
+              <strong>English:</strong> All the information given by my
+              son/daughter in this form and all the certificates attached are
+              true. If found false, the school administration will have the
+              right to take all legal action. I will not appeal against this. My
+              son/daughter will follow the orders, instructions and rules issued
+              by the school administration. If this is not done, the school
+              administration will be free to expel the student. The school
+              administration will not be responsible for getting or not getting
+              government benefits.
+              <strong>
+                {" "}
+                75% attendance is mandatory and must be present in the school
+                uniform (dress).
+              </strong>
+            </p>
+            <p lang="hi" style={{ marginBottom: "4px" }}>
+              <strong>हिंदी:</strong> मेरे बेटे/बेटी द्वारा इस फॉर्म में दी गई सभी जानकारी
+              और संलग्न सभी प्रमाण पत्र सत्य हैं। यदि असत्य पाया गया तो विद्यालय प्रशासन
+              को सभी कानूनी कार्रवाई करने का अधिकार होगा। मैं इसके विरुद्ध अपील नहीं
+              करूँगा/करूँगी। मेरा बेटा/बेटी विद्यालय प्रशासन द्वारा जारी आदेशों, निर्देशों और
+              नियमों का पालन करेगा/करेगी। यदि ऐसा नहीं किया गया, तो विद्यालय प्रशासन
+              छात्र को निष्कासित करने के लिए स्वतंत्र होगा। सरकारी लाभ मिलने या न मिलने के
+              लिए विद्यालय प्रशासन जिम्मेदार नहीं होगा।
+              <strong>
+                {" "}
+                75% उपस्थिति अनिवार्य है और विद्यालय की वर्दी (ड्रेस) में उपस्थित रहना
+                आवश्यक है।
+              </strong>
+            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <div
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  border: "1px solid #333",
+                  display: "inline-block",
+                  backgroundColor: form.guardianDeclaration
+                    ? "#4444aa"
+                    : "white",
+                }}
+              />
+              <span style={{ fontSize: "7.5pt", fontWeight: 600 }}>
+                I / We have read and agree to the above declaration.
+                &nbsp;|&nbsp;
+                <span lang="hi">मैंने/हमने उपरोक्त घोषणा पढ़ी है और सहमत हैं।</span>
+              </span>
             </div>
           </div>
-        )}
 
-        {/* Declaration */}
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-primary border-b border-primary/30 pb-2 mb-4">
-            Declaration
-          </h3>
-          <p className="text-base">
-            Guardian Declaration:{" "}
-            <span className="font-medium">
-              {form.guardianDeclaration ? "Agreed" : "Not Agreed"}
-            </span>
-          </p>
+          {/* Signature row */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: "8px",
+              marginTop: "10px",
+              paddingTop: "6px",
+              borderTop: "1px solid #bbb",
+            }}
+          >
+            <div style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  borderBottom: "1px solid #333",
+                  height: "28px",
+                  marginBottom: "2px",
+                }}
+              />
+              <div style={{ fontSize: "7pt", color: "#555" }}>
+                Signature of Father / पिता का हस्ताक्षर
+              </div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  borderBottom: "1px solid #333",
+                  height: "28px",
+                  marginBottom: "2px",
+                }}
+              />
+              <div style={{ fontSize: "7pt", color: "#555" }}>
+                Signature of Student / छात्र का हस्ताक्षर
+              </div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  borderBottom: "1px solid #333",
+                  height: "28px",
+                  marginBottom: "2px",
+                }}
+              />
+              <div style={{ fontSize: "7pt", color: "#555" }}>
+                Signature of Principal / प्राचार्य का हस्ताक्षर
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "6px",
+              fontSize: "6.5pt",
+              color: "#666",
+              borderTop: "1px solid #ccc",
+              paddingTop: "3px",
+            }}
+          >
+            Inter School Kawakol, Nawada, Bihar | School Code: 82021 &amp; 23054
+            | UDIS: 10360504011
+          </div>
         </div>
       </CardContent>
     </Card>

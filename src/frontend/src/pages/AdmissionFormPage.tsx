@@ -103,10 +103,10 @@ export default function AdmissionFormPage() {
     }
   }, [student]);
 
+  // Form is editable when no status (draft) or when pending (submitted but not yet decided).
+  // Form is locked once approved or rejected.
   const isFormDisabled =
-    student?.status === "pending" ||
-    student?.status === "approved" ||
-    student?.status === "rejected";
+    student?.status === "approved" || student?.status === "rejected";
 
   const validateForm = (): boolean => {
     // --- Personal Details ---
@@ -304,6 +304,35 @@ export default function AdmissionFormPage() {
     if (!formData.address?.pinCode?.trim()) {
       toast.error("Pin Code is required");
       return false;
+    }
+
+    // --- Subject Selection (Class 9 & 10: M.I.L. and S.I.L. required; Extra is optional) ---
+    if (student?._class === "class09th" || student?._class === "class10th") {
+      if (!formData.subjects?.mil?.length) {
+        toast.error("M.I.L. Subject selection is required");
+        return false;
+      }
+      if (!formData.subjects?.sil?.length) {
+        toast.error("S.I.L. Subject selection is required");
+        return false;
+      }
+      if (!formData.subjects?.compulsory?.length) {
+        toast.error("Please select at least one Compulsory Subject");
+        return false;
+      }
+      // Extra subject is optional — no validation needed
+    }
+
+    if (student?._class === "class11th" || student?._class === "class12th") {
+      if (!formData.subjects?.stream) {
+        toast.error("Stream selection is required for Class 11/12");
+        return false;
+      }
+      if (!formData.subjects?.compulsory?.length) {
+        toast.error("Please select at least one stream subject");
+        return false;
+      }
+      // Extra subject is optional — no validation needed
     }
 
     // --- Declaration ---
