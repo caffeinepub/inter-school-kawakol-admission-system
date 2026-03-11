@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader2, Shield } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +19,7 @@ const ADMIN_PASSWORD = "InterSchool@951";
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -28,7 +30,6 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate a brief delay for better UX
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     if (
@@ -36,6 +37,9 @@ export default function AdminLoginPage() {
       formData.password === ADMIN_PASSWORD
     ) {
       sessionStorage.setItem("adminAuthenticated", "true");
+      // Invalidate entire actor cache so it rebuilds with admin token
+      await queryClient.invalidateQueries({ queryKey: ["actor"] });
+      await queryClient.refetchQueries({ queryKey: ["actor"] });
       toast.success("Admin login successful");
       navigate({ to: "/admin/dashboard" });
     } else {
@@ -73,6 +77,7 @@ export default function AdminLoginPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, username: e.target.value })
                 }
+                data-ocid="admin_login.username.input"
               />
             </div>
 
@@ -86,10 +91,16 @@ export default function AdminLoginPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
+                data-ocid="admin_login.password.input"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+              data-ocid="admin_login.submit_button"
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -1,15 +1,29 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { CheckCircle, Clock, Edit, Loader2, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  Edit,
+  Loader2,
+  LogOut,
+  XCircle,
+} from "lucide-react";
 import { useEffect } from "react";
 import PrintableAdmissionForm from "../components/PrintableAdmissionForm";
 import { useGetCallerStudent } from "../hooks/useQueries";
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: student, isLoading } = useGetCallerStudent();
+
+  const handleLogout = () => {
+    queryClient.clear();
+    navigate({ to: "/login" });
+  };
 
   useEffect(() => {
     if (!isLoading && !student) {
@@ -78,9 +92,19 @@ export default function StudentDashboard() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">
-            Student Dashboard
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl">Student Dashboard</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              data-ocid="dashboard.logout_button"
+              className="gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">

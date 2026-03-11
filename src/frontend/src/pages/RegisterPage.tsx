@@ -21,11 +21,13 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { Class } from "../backend";
+import { useActor } from "../hooks/useActor";
 import { useRegisterStudent } from "../hooks/useQueries";
 import { getCanisterErrorMessage } from "../utils/errorHandling";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { actor, isFetching: actorLoading } = useActor();
   const [formData, setFormData] = useState({
     class: "" as Class | "",
     name: "",
@@ -64,6 +66,14 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
+
+    if (!actor) {
+      setSubmitError(
+        "Connecting to server, please wait a moment and try again.",
+      );
+      return;
+    }
+
     if (!validateForm()) return;
 
     try {
@@ -81,6 +91,8 @@ export default function RegisterPage() {
     }
   };
 
+  const isSubmitDisabled = actorLoading || !actor || registerMutation.isPending;
+
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4 py-12">
       <Card className="w-full max-w-lg">
@@ -94,6 +106,15 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {(actorLoading || (!actor && !actorLoading)) && (
+              <Alert>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <AlertDescription>
+                  Connecting to server, please wait...
+                </AlertDescription>
+              </Alert>
+            )}
+
             {submitError && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -112,6 +133,7 @@ export default function RegisterPage() {
                 <SelectTrigger
                   id="class"
                   className={errors.class ? "border-destructive" : ""}
+                  data-ocid="register.class.select"
                 >
                   <SelectValue placeholder="Select class" />
                 </SelectTrigger>
@@ -138,6 +160,7 @@ export default function RegisterPage() {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 className={errors.name ? "border-destructive" : ""}
+                data-ocid="register.name.input"
               />
               {errors.name && (
                 <p className="text-sm text-destructive">{errors.name}</p>
@@ -155,6 +178,7 @@ export default function RegisterPage() {
                   setFormData({ ...formData, email: e.target.value })
                 }
                 className={errors.email ? "border-destructive" : ""}
+                data-ocid="register.email.input"
               />
               {errors.email && (
                 <p className="text-sm text-destructive">{errors.email}</p>
@@ -172,6 +196,7 @@ export default function RegisterPage() {
                   setFormData({ ...formData, password: e.target.value })
                 }
                 className={errors.password ? "border-destructive" : ""}
+                data-ocid="register.password.input"
               />
               {errors.password && (
                 <p className="text-sm text-destructive">{errors.password}</p>
@@ -189,6 +214,7 @@ export default function RegisterPage() {
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
                 className={errors.confirmPassword ? "border-destructive" : ""}
+                data-ocid="register.confirm_password.input"
               />
               {errors.confirmPassword && (
                 <p className="text-sm text-destructive">
@@ -200,9 +226,15 @@ export default function RegisterPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={registerMutation.isPending}
+              disabled={isSubmitDisabled}
+              data-ocid="register.submit_button"
             >
-              {registerMutation.isPending ? (
+              {actorLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : registerMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Registering...
@@ -218,6 +250,7 @@ export default function RegisterPage() {
                 type="button"
                 onClick={() => navigate({ to: "/login" })}
                 className="text-primary hover:underline font-medium"
+                data-ocid="register.login.link"
               >
                 Login here
               </button>

@@ -13,11 +13,13 @@ import { useNavigate } from "@tanstack/react-router";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useActor } from "../hooks/useActor";
 import { useGetCallerStudent, useLoginStudent } from "../hooks/useQueries";
 import { getCanisterErrorMessage } from "../utils/errorHandling";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { actor, isFetching: actorLoading } = useActor();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -30,6 +32,13 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
+
+    if (!actor) {
+      setSubmitError(
+        "Connecting to server, please wait a moment and try again.",
+      );
+      return;
+    }
 
     if (!formData.email || !formData.password) {
       setSubmitError("Please enter both email and password");
@@ -60,6 +69,8 @@ export default function LoginPage() {
     }
   };
 
+  const isSubmitDisabled = actorLoading || !actor || loginMutation.isPending;
+
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md">
@@ -73,6 +84,15 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {(actorLoading || (!actor && !actorLoading)) && (
+              <Alert>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <AlertDescription>
+                  Connecting to server, please wait...
+                </AlertDescription>
+              </Alert>
+            )}
+
             {submitError && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -91,6 +111,7 @@ export default function LoginPage() {
                   setFormData({ ...formData, email: e.target.value });
                   if (submitError) setSubmitError(null);
                 }}
+                data-ocid="login.email.input"
               />
             </div>
 
@@ -105,15 +126,22 @@ export default function LoginPage() {
                   setFormData({ ...formData, password: e.target.value });
                   if (submitError) setSubmitError(null);
                 }}
+                data-ocid="login.password.input"
               />
             </div>
 
             <Button
               type="submit"
               className="w-full"
-              disabled={loginMutation.isPending}
+              disabled={isSubmitDisabled}
+              data-ocid="login.submit_button"
             >
-              {loginMutation.isPending ? (
+              {actorLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : loginMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Logging in...
@@ -129,6 +157,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => navigate({ to: "/register" })}
                 className="text-primary hover:underline font-medium"
+                data-ocid="login.register.link"
               >
                 Register here
               </button>

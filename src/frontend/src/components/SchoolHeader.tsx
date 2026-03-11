@@ -1,4 +1,10 @@
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "@tanstack/react-router";
+import { Shield } from "lucide-react";
+
 export default function SchoolHeader() {
+  const navigate = useNavigate();
+
   return (
     <header className="relative text-white shadow-lg overflow-hidden">
       {/* Background image */}
@@ -6,7 +12,7 @@ export default function SchoolHeader() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage:
-            "url('/assets/generated/school-header-bg.dim_1400x500.jpg')",
+            "url('/assets/uploads/2f479a0a-c6d1-4a72-a0c8-c075657194eb-1.jpg')",
         }}
         aria-hidden="true"
       />
@@ -25,15 +31,29 @@ export default function SchoolHeader() {
           />
           <div className="text-center">
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight drop-shadow-md">
-              INTER SCHOOL KAWAKOL
+              +2 उच्च विद्यालय कौआकोल, (नवादा)
             </h1>
             <p className="text-lg md:text-xl font-semibold text-yellow-300 drop-shadow-md mt-0.5">
-              इंटर स्कूल कवाकोल, नवादा
+              स्थापित १९७० ई.
             </p>
             <p className="text-sm md:text-base text-white/90 mt-1 drop-shadow-sm">
-              Nawada, Bihar - Admission Portal
+              INTER SCHOOL KAWAKOL, Nawada, Bihar - Admission Portal
             </p>
           </div>
+        </div>
+
+        {/* Admin Login button — top-right corner */}
+        <div className="absolute top-4 right-4 md:top-5 md:right-5">
+          <Button
+            variant="outline"
+            size="sm"
+            data-ocid="header.admin_login_button"
+            onClick={() => navigate({ to: "/admin/login" })}
+            className="border-white/50 bg-white/10 text-white hover:bg-white/25 hover:border-white/80 hover:text-white backdrop-blur-sm transition-all duration-200 gap-1.5 text-xs md:text-sm"
+          >
+            <Shield className="h-3.5 w-3.5 md:h-4 md:w-4" />
+            Admin Login
+          </Button>
         </div>
       </div>
     </header>

@@ -339,8 +339,8 @@ export default function PrintableAdmissionForm({
               label="Annual Family Income (वार्षिक आय)"
               value={form.annualFamilyIncome}
             />
-            <Field label="Mobile Number (मोबाइल)" value={form.mobileNumber} />
-            <Field label="Email ID (ईमेल)" value={form.emailId} />
+            <Field label="Mobile Number (मोबाइल)" value={form.studentPhone} />
+            <Field label="Email ID (ईमेल)" value={form.studentEmail} />
           </div>
 
           {/* ---- SECTION 2: Student Identifiers ---- */}
