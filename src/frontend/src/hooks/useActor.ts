@@ -14,26 +14,25 @@ export function useActor() {
     queryFn: async () => {
       const isAuthenticated = !!identity;
 
-      let actor: backendInterface;
       if (!isAuthenticated) {
-        // Anonymous actor — still initialize access control so admin (username/password) works
-        actor = await createActorWithConfig();
-      } else {
-        const actorOptions = {
-          agentOptions: {
-            identity,
-          },
-        };
-        actor = await createActorWithConfig(actorOptions);
+        // Return anonymous actor if not authenticated
+        return await createActorWithConfig();
       }
 
-      // Always initialize access control — required for username/password admin login
+      const actorOptions = {
+        agentOptions: {
+          identity,
+        },
+      };
+
+      const actor = await createActorWithConfig(actorOptions);
       const adminToken = getSecretParameter("caffeineAdminToken") || "";
       await actor._initializeAccessControlWithSecret(adminToken);
       return actor;
     },
     // Only refetch when identity changes
     staleTime: Number.POSITIVE_INFINITY,
+    // This will cause the actor to be recreated when the identity changes
     enabled: true,
   });
 

@@ -37,9 +37,9 @@ export default function AdminLoginPage() {
       formData.password === ADMIN_PASSWORD
     ) {
       sessionStorage.setItem("adminAuthenticated", "true");
-      // Invalidate entire actor cache so it rebuilds with admin token
-      await queryClient.invalidateQueries({ queryKey: ["actor"] });
-      await queryClient.refetchQueries({ queryKey: ["actor"] });
+      // Clear all cached query data so admin dashboard fetches fresh data
+      await queryClient.invalidateQueries();
+      await queryClient.removeQueries({ queryKey: ["allApplications"] });
       toast.success("Admin login successful");
       navigate({ to: "/admin/dashboard" });
     } else {

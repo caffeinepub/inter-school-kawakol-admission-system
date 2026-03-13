@@ -147,8 +147,10 @@ export enum UserRole {
 }
 export interface backendInterface {
     approveApplication(email: string): Promise<void>;
+    approveApplicationForAdmin(email: string, adminPassword: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     getAllApplications(): Promise<Array<Student>>;
+    getAllApplicationsForAdmin(adminPassword: string): Promise<Array<Student>>;
     getAllApprovedApplications(): Promise<Array<Student>>;
     getAllPendingApplications(): Promise<Array<Student>>;
     getAllRejectedApplications(): Promise<Array<Student>>;
@@ -163,6 +165,7 @@ export interface backendInterface {
     loginStudent(email: string, password: string): Promise<boolean>;
     registerStudent(_class: Class, name: string, email: string, password: string): Promise<void>;
     rejectApplication(email: string): Promise<void>;
+    rejectApplicationForAdmin(email: string, adminPassword: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveDraft(email: string, form: AdmissionForm): Promise<void>;
     submitForm(email: string, form: AdmissionForm): Promise<void>;

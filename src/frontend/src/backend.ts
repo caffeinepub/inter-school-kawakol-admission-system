@@ -256,6 +256,9 @@ export interface backendInterface {
     loginStudent(email: string, password: string): Promise<boolean>;
     registerStudent(_class: Class, name: string, email: string, password: string): Promise<void>;
     rejectApplication(email: string): Promise<void>;
+    rejectApplicationForAdmin(email: string, adminPassword: string): Promise<void>;
+    getAllApplicationsForAdmin(adminPassword: string): Promise<Array<Student>>;
+    approveApplicationForAdmin(email: string, adminPassword: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveDraft(email: string, form: AdmissionForm): Promise<void>;
     submitForm(email: string, form: AdmissionForm): Promise<void>;
@@ -596,6 +599,48 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.rejectApplication(arg0);
+            return result;
+        }
+    }
+    async getAllApplicationsForAdmin(arg0: string): Promise<Array<Student>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllApplicationsForAdmin(arg0);
+                return from_candid_vec_n10(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllApplicationsForAdmin(arg0);
+            return from_candid_vec_n10(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async approveApplicationForAdmin(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.approveApplicationForAdmin(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.approveApplicationForAdmin(arg0, arg1);
+            return result;
+        }
+    }
+    async rejectApplicationForAdmin(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.rejectApplicationForAdmin(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.rejectApplicationForAdmin(arg0, arg1);
             return result;
         }
     }

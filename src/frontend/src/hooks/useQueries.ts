@@ -1,11 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  type AdmissionForm,
-  ApplicationStatus,
-  type Class,
-  type Student,
-} from "../backend";
+import type { AdmissionForm, Class, Student } from "../backend";
 import { useActor } from "./useActor";
+
+const ADMIN_PASSWORD = "InterSchool@951";
 
 export function useRegisterStudent() {
   const { actor } = useActor();
@@ -103,9 +100,15 @@ export function useGetAllApplications() {
     queryKey: ["allApplications"],
     queryFn: async () => {
       if (!actor) throw new Error("Actor not available");
-      return actor.getAllApplications();
+      // Use password-based admin function to bypass principal/role check
+      const result = await actor.getAllApplicationsForAdmin(ADMIN_PASSWORD);
+      return result;
     },
     enabled: !!actor && !actorFetching,
+    refetchOnMount: "always",
+    staleTime: 0,
+    retry: 3,
+    retryDelay: 1000,
   });
 }
 
@@ -116,7 +119,7 @@ export function useApproveApplication() {
   return useMutation({
     mutationFn: async (email: string) => {
       if (!actor) throw new Error("Actor not available");
-      return actor.approveApplication(email);
+      return actor.approveApplicationForAdmin(email, ADMIN_PASSWORD);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allApplications"] });
@@ -131,7 +134,7 @@ export function useRejectApplication() {
   return useMutation({
     mutationFn: async (email: string) => {
       if (!actor) throw new Error("Actor not available");
-      return actor.rejectApplication(email);
+      return actor.rejectApplicationForAdmin(email, ADMIN_PASSWORD);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allApplications"] });

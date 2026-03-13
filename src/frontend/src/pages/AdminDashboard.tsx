@@ -10,8 +10,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useNavigate } from "@tanstack/react-router";
-import { CheckCircle, Download, Loader2, LogOut, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  CheckCircle,
+  Download,
+  Loader2,
+  LogOut,
+  RefreshCw,
+  XCircle,
+} from "lucide-react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import {
   useApproveApplication,
@@ -22,7 +29,14 @@ import { exportToExcel } from "../utils/exportToExcel";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const { data: applications, isLoading } = useGetAllApplications();
+  const {
+    data: applications,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useGetAllApplications();
   const approveMutation = useApproveApplication();
   const rejectMutation = useRejectApplication();
 
@@ -64,6 +78,11 @@ export default function AdminDashboard() {
     } else {
       toast.error("No applications to export");
     }
+  };
+
+  const handleRefresh = () => {
+    refetch();
+    toast.info("Refreshing applications...");
   };
 
   const getStatusBadge = (status: string) => {
@@ -119,6 +138,19 @@ export default function AdminDashboard() {
               Admin Dashboard - All Applications
             </CardTitle>
             <div className="flex gap-2">
+              <Button
+                onClick={handleRefresh}
+                variant="outline"
+                disabled={isFetching}
+                data-ocid="admin.refresh_button"
+              >
+                {isFetching ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                )}
+                Refresh
+              </Button>
               <Button onClick={handleExport} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
                 Export to Excel
@@ -131,6 +163,16 @@ export default function AdminDashboard() {
           </div>
         </CardHeader>
         <CardContent>
+          {isError && (
+            <div
+              className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm"
+              data-ocid="admin.error_state"
+            >
+              <strong>Error loading applications:</strong>{" "}
+              {(error as any)?.message ||
+                "Unknown error. Please click Refresh to try again."}
+            </div>
+          )}
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -189,9 +231,12 @@ export default function AdminDashboard() {
                   <TableRow>
                     <TableCell
                       colSpan={6}
-                      className="text-center text-muted-foreground"
+                      className="text-center text-muted-foreground py-8"
+                      data-ocid="admin.applications.empty_state"
                     >
-                      No applications found
+                      {isFetching
+                        ? "Loading applications..."
+                        : "No applications found. Students must register and submit the admission form to appear here."}
                     </TableCell>
                   </TableRow>
                 )}
