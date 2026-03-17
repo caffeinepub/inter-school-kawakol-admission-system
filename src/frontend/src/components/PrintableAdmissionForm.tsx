@@ -5,10 +5,12 @@ import type { Student } from "../backend";
 
 interface PrintableAdmissionFormProps {
   student: Student;
+  admissionNumber?: string;
 }
 
 export default function PrintableAdmissionForm({
   student,
+  admissionNumber,
 }: PrintableAdmissionFormProps) {
   const handlePrint = () => {
     window.print();
@@ -232,6 +234,14 @@ export default function PrintableAdmissionForm({
                   {student.status}
                 </strong>
               </div>
+              {admissionNumber && (
+                <div style={{ fontSize: "7.5pt", marginTop: "2px" }}>
+                  Admission No:{" "}
+                  <strong style={{ fontFamily: "monospace", color: "#4444aa" }}>
+                    {admissionNumber}
+                  </strong>
+                </div>
+              )}
               <div style={{ fontSize: "7pt", color: "#555" }}>
                 Date:{" "}
                 {new Date(

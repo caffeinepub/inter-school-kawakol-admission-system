@@ -13,12 +13,16 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import PrintableAdmissionForm from "../components/PrintableAdmissionForm";
-import { useGetCallerStudent } from "../hooks/useQueries";
+import {
+  useGetAdmissionNumber,
+  useGetCallerStudent,
+} from "../hooks/useQueries";
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: student, isLoading } = useGetCallerStudent();
+  const { data: admissionNumber } = useGetAdmissionNumber(student?.email);
 
   const handleLogout = () => {
     queryClient.clear();
@@ -88,6 +92,16 @@ export default function StudentDashboard() {
   // Students can edit their form only when status is pending (under review)
   const canEdit = student.status === "pending" && !!student.form;
 
+  const getClassLabel = (classValue: string) => {
+    const classMap: Record<string, string> = {
+      class09th: "09th",
+      class10th: "10th",
+      class11th: "11th",
+      class12th: "12th",
+    };
+    return classMap[classValue] || classValue;
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <Card className="mb-6">
@@ -107,21 +121,38 @@ export default function StudentDashboard() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Student Name</p>
+              <p className="font-semibold">{student.name}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Class</p>
+              <p className="font-semibold">{getClassLabel(student._class)}</p>
+            </div>
             <div>
               <p className="text-sm text-muted-foreground">
                 Application Status
               </p>
-              <div className="mt-2">{getStatusBadge()}</div>
+              <div className="mt-1">{getStatusBadge()}</div>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">Student Name</p>
-              <p className="font-semibold">{student.name}</p>
+            {admissionNumber && (
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Admission Number
+                </p>
+                <p className="font-semibold text-primary font-mono text-sm">
+                  {admissionNumber}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {student.status !== "draft" && (
+            <div className="p-4 bg-muted rounded-lg">
+              <p className="text-sm">{getStatusMessage()}</p>
             </div>
-          </div>
-          <div className="p-4 bg-muted rounded-lg">
-            <p className="text-sm">{getStatusMessage()}</p>
-          </div>
+          )}
 
           {canEdit && (
             <div className="flex justify-center pt-2">
@@ -151,7 +182,12 @@ export default function StudentDashboard() {
         </CardContent>
       </Card>
 
-      {student.form && <PrintableAdmissionForm student={student} />}
+      {student.form && (
+        <PrintableAdmissionForm
+          student={student}
+          admissionNumber={admissionNumber}
+        />
+      )}
     </div>
   );
 }

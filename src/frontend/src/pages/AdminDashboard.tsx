@@ -22,6 +22,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import {
   useApproveApplication,
+  useGetAllAdmissionNumbers,
   useGetAllApplications,
   useRejectApplication,
 } from "../hooks/useQueries";
@@ -37,6 +38,7 @@ export default function AdminDashboard() {
     refetch,
     isFetching,
   } = useGetAllApplications();
+  const { data: admissionNumbersMap } = useGetAllAdmissionNumbers();
   const approveMutation = useApproveApplication();
   const rejectMutation = useRejectApplication();
 
@@ -73,7 +75,7 @@ export default function AdminDashboard() {
 
   const handleExport = () => {
     if (applications && applications.length > 0) {
-      exportToExcel(applications);
+      exportToExcel(applications, admissionNumbersMap);
       toast.success("Excel file downloaded successfully");
     } else {
       toast.error("No applications to export");
@@ -177,6 +179,7 @@ export default function AdminDashboard() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Admission No.</TableHead>
                   <TableHead>Student Name</TableHead>
                   <TableHead>Class</TableHead>
                   <TableHead>Email</TableHead>
@@ -189,6 +192,9 @@ export default function AdminDashboard() {
                 {applications && applications.length > 0 ? (
                   applications.map((student) => (
                     <TableRow key={student.email}>
+                      <TableCell className="font-mono text-xs text-primary">
+                        {admissionNumbersMap?.get(student.email) || "-"}
+                      </TableCell>
                       <TableCell className="font-medium">
                         {student.name}
                       </TableCell>
@@ -230,7 +236,7 @@ export default function AdminDashboard() {
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={7}
                       className="text-center text-muted-foreground py-8"
                       data-ocid="admin.applications.empty_state"
                     >

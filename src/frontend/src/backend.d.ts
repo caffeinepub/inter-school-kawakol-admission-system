@@ -154,6 +154,8 @@ export interface backendInterface {
     getAllApprovedApplications(): Promise<Array<Student>>;
     getAllPendingApplications(): Promise<Array<Student>>;
     getAllRejectedApplications(): Promise<Array<Student>>;
+    getAdmissionNumber(email: string): Promise<string>;
+    getAllAdmissionNumbers(): Promise<Array<[string, string]>>;
     getApplicationStatus(email: string): Promise<ApplicationStatus>;
     getApplicationsSortedByDate(): Promise<Array<Student>>;
     getCallerStudent(): Promise<Student | null>;

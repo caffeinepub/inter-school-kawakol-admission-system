@@ -58,10 +58,7 @@ export const BankName = IDL.Variant({
   'unionBankOfIndia' : IDL.Null,
   'punjabNationalBank' : IDL.Null,
 });
-export const State = IDL.Variant({
-  'bihar' : IDL.Null,
-  'jharkhand' : IDL.Null,
-});
+export const State = IDL.Variant({ 'bihar' : IDL.Null, 'jharkhand' : IDL.Null });
 export const Gender = IDL.Variant({
   'other' : IDL.Null,
   'female' : IDL.Null,
@@ -188,6 +185,8 @@ export const idlService = IDL.Service({
   'getAllApprovedApplications' : IDL.Func([], [IDL.Vec(Student)], ['query']),
   'getAllPendingApplications' : IDL.Func([], [IDL.Vec(Student)], ['query']),
   'getAllRejectedApplications' : IDL.Func([], [IDL.Vec(Student)], ['query']),
+  'getAdmissionNumber' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
+  'getAllAdmissionNumbers' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))], ['query']),
   'getApplicationStatus' : IDL.Func([IDL.Text], [ApplicationStatus], ['query']),
   'getApplicationsSortedByDate' : IDL.Func([], [IDL.Vec(Student)], ['query']),
   'getCallerStudent' : IDL.Func([], [IDL.Opt(Student)], ['query']),
@@ -382,13 +381,15 @@ export const idlFactory = ({ IDL }) => {
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'approveApplication' : IDL.Func([IDL.Text], [], []),
-  'approveApplicationForAdmin' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'approveApplicationForAdmin' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'getAllApplications' : IDL.Func([], [IDL.Vec(Student)], ['query']),
-  'getAllApplicationsForAdmin' : IDL.Func([IDL.Text], [IDL.Vec(Student)], ['query']),
+    'getAllApplicationsForAdmin' : IDL.Func([IDL.Text], [IDL.Vec(Student)], ['query']),
     'getAllApprovedApplications' : IDL.Func([], [IDL.Vec(Student)], ['query']),
     'getAllPendingApplications' : IDL.Func([], [IDL.Vec(Student)], ['query']),
     'getAllRejectedApplications' : IDL.Func([], [IDL.Vec(Student)], ['query']),
+    'getAdmissionNumber' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
+    'getAllAdmissionNumbers' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))], ['query']),
     'getApplicationStatus' : IDL.Func(
         [IDL.Text],
         [ApplicationStatus],
@@ -408,7 +409,7 @@ export const idlFactory = ({ IDL }) => {
     'loginStudent' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], ['query']),
     'registerStudent' : IDL.Func([Class, IDL.Text, IDL.Text, IDL.Text], [], []),
     'rejectApplication' : IDL.Func([IDL.Text], [], []),
-  'rejectApplicationForAdmin' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'rejectApplicationForAdmin' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'saveDraft' : IDL.Func([IDL.Text, AdmissionForm], [], []),
     'submitForm' : IDL.Func([IDL.Text, AdmissionForm], [], []),

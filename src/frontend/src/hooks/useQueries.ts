@@ -112,6 +112,40 @@ export function useGetAllApplications() {
   });
 }
 
+export function useGetAllAdmissionNumbers() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<Map<string, string>>({
+    queryKey: ["allAdmissionNumbers"],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      const pairs = await actor.getAllAdmissionNumbers();
+      const map = new Map<string, string>();
+      for (const [email, admNo] of pairs) {
+        map.set(email, admNo);
+      }
+      return map;
+    },
+    enabled: !!actor && !actorFetching,
+    staleTime: 30000,
+  });
+}
+
+export function useGetAdmissionNumber(email: string | undefined) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<string>({
+    queryKey: ["admissionNumber", email],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      if (!email) return "";
+      return actor.getAdmissionNumber(email);
+    },
+    enabled: !!actor && !actorFetching && !!email,
+    staleTime: 60000,
+  });
+}
+
 export function useApproveApplication() {
   const { actor } = useActor();
   const queryClient = useQueryClient();

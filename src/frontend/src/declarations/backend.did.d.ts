@@ -171,6 +171,8 @@ export interface _SERVICE {
   'loginStudent' : ActorMethod<[string, string], boolean>,
   'registerStudent' : ActorMethod<[Class, string, string, string], undefined>,
   'rejectApplication' : ActorMethod<[string], undefined>,
+  'getAdmissionNumber' : ActorMethod<[string], string>,
+  'getAllAdmissionNumbers' : ActorMethod<[], Array<[string, string]>>,
   'rejectApplicationForAdmin' : ActorMethod<[string, string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveDraft' : ActorMethod<[string, AdmissionForm], undefined>,

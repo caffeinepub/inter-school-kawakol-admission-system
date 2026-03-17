@@ -125,6 +125,10 @@ actor {
   // Stable storage to persist data across canister upgrades
   stable var studentsStable : [Student] = [];
 
+  // Stable admission number storage (separate from Student type to avoid migration issues)
+  var admissionCounter : Nat = 0;
+  var admissionNumbersStable : [(Text, Text)] = []; // (email, admissionNumber)
+
   let students = Map.empty<Text, Student>();
   let principalToEmail = Map.empty<Principal, Text>();
   let userProfiles = Map.empty<Principal, UserProfile>();
@@ -146,6 +150,59 @@ actor {
   };
 
   let ADMIN_PASSWORD : Text = "InterSchool@951";
+
+  // --- Admission Number Helpers ---
+
+  private func classNumText(_class : Class) : Text {
+    switch (_class) {
+      case (#class09th) { "9" };
+      case (#class10th) { "10" };
+      case (#class11th) { "11" };
+      case (#class12th) { "12" };
+    }
+  };
+
+  // Pad a natural number with leading zeros to reach the desired width
+  private func padNat(n : Nat, width : Nat) : Text {
+    let s = n.toText();
+    let len = s.size();
+    if (len >= width) { return s };
+    var pad = "";
+    var i = len;
+    while (i < width) {
+      pad := "0" # pad;
+      i += 1;
+    };
+    pad # s
+  };
+
+  // Returns academic year string like "2025-26" based on current timestamp
+  private func currentAcademicYear() : Text {
+    let ns : Int = Time.now();
+    let seconds : Int = ns / 1_000_000_000;
+    // Reference: Jan 1, 2024 = 1704067200 Unix seconds
+    let JAN1_2024 : Int = 1_704_067_200;
+    let SECS_PER_YEAR : Int = 31_536_000;
+    let years : Int = (seconds - JAN1_2024) / SECS_PER_YEAR;
+    let year : Int = 2024 + years;
+    let yearStart : Int = JAN1_2024 + years * SECS_PER_YEAR;
+    let dayOfYear : Int = (seconds - yearStart) / 86_400;
+    let month : Int = dayOfYear / 30 + 1;
+    // Academic year starts April (month 4)
+    let startY : Int = if (month >= 4) { year } else { year - 1 };
+    let endY : Int = startY + 1;
+    let endShort : Int = endY - (endY / 100 * 100);
+    let endStr = if (endShort < 10) { "0" # endShort.toText() } else { endShort.toText() };
+    startY.toText() # "-" # endStr
+  };
+
+  // Append a single element to an immutable array
+  private func arrayAppend<T>(arr : [T], elem : T) : [T] {
+    let n = arr.size();
+    Array.tabulate<T>(n + 1, func(i : Nat) : T {
+      if (i < n) { arr[i] } else { elem }
+    })
+  };
 
   private func isRegisteredStudent(caller : Principal) : Bool {
     switch (principalToEmail.get(caller)) {
@@ -197,6 +254,10 @@ actor {
       isStudent = true;
     };
     userProfiles.add(caller, profile);
+    // Generate and store unique admission number
+    admissionCounter += 1;
+    let admNo = "ISK/" # classNumText(_class) # "/" # currentAcademicYear() # "/-" # padNat(admissionCounter, 5);
+    admissionNumbersStable := arrayAppend(admissionNumbersStable, (email, admNo));
   };
 
   public query ({ caller }) func loginStudent(email : Text, password : Text) : async Bool {
@@ -340,6 +401,18 @@ actor {
         students.add(email, updatedStudent);
       };
     };
+  };
+
+  // Admission Number Queries
+  public query func getAdmissionNumber(email : Text) : async Text {
+    for ((e, admNo) in admissionNumbersStable.vals()) {
+      if (e == email) { return admNo };
+    };
+    ""
+  };
+
+  public query func getAllAdmissionNumbers() : async [(Text, Text)] {
+    admissionNumbersStable
   };
 
   public query ({ caller }) func getApplicationStatus(email : Text) : async ApplicationStatus {

@@ -19,6 +19,7 @@ import Class9SubjectSelection from "../components/Class9SubjectSelection";
 import Class10SubjectSelection from "../components/Class10SubjectSelection";
 import Class11And12SubjectSelection from "../components/Class11And12SubjectSelection";
 import ContactDetailsSection from "../components/ContactDetailsSection";
+import DocumentsChecklistSection from "../components/DocumentsChecklistSection";
 import GuardianDeclarationSection from "../components/GuardianDeclarationSection";
 import PersonalDetailsSection from "../components/PersonalDetailsSection";
 import PreviousExamSection from "../components/PreviousExamSection";
@@ -464,6 +465,8 @@ export default function AdmissionFormPage() {
             disabled={isFormDisabled}
           />
         )}
+
+        <DocumentsChecklistSection />
 
         <GuardianDeclarationSection
           formData={formData}

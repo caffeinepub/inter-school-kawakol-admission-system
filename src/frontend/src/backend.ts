@@ -259,6 +259,8 @@ export interface backendInterface {
     rejectApplicationForAdmin(email: string, adminPassword: string): Promise<void>;
     getAllApplicationsForAdmin(adminPassword: string): Promise<Array<Student>>;
     approveApplicationForAdmin(email: string, adminPassword: string): Promise<void>;
+    getAdmissionNumber(email: string): Promise<string>;
+    getAllAdmissionNumbers(): Promise<Array<[string, string]>>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveDraft(email: string, form: AdmissionForm): Promise<void>;
     submitForm(email: string, form: AdmissionForm): Promise<void>;
@@ -641,6 +643,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.rejectApplicationForAdmin(arg0, arg1);
+            return result;
+        }
+    }
+    async getAdmissionNumber(arg0: string): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAdmissionNumber(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAdmissionNumber(arg0);
+            return result;
+        }
+    }
+    async getAllAdmissionNumbers(): Promise<Array<[string, string]>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllAdmissionNumbers();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllAdmissionNumbers();
             return result;
         }
     }

@@ -1,8 +1,12 @@
 import type { Student } from "../backend";
 
-export function exportToExcel(students: Student[]) {
+export function exportToExcel(
+  students: Student[],
+  admissionNumbersMap?: Map<string, string>,
+) {
   // Create CSV content
   const headers = [
+    "Admission Number",
     "Student Name",
     "Class",
     "Email",
@@ -64,6 +68,7 @@ export function exportToExcel(students: Student[]) {
   const rows = students.map((student) => {
     const form = student.form;
     return [
+      admissionNumbersMap?.get(student.email) || "-",
       student.name,
       student._class,
       student.email,
