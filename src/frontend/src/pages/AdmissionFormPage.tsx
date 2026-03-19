@@ -19,7 +19,9 @@ import Class9SubjectSelection from "../components/Class9SubjectSelection";
 import Class10SubjectSelection from "../components/Class10SubjectSelection";
 import Class11And12SubjectSelection from "../components/Class11And12SubjectSelection";
 import ContactDetailsSection from "../components/ContactDetailsSection";
-import DocumentsChecklistSection from "../components/DocumentsChecklistSection";
+import DocumentsChecklistSection, {
+  DOCUMENTS,
+} from "../components/DocumentsChecklistSection";
 import GuardianDeclarationSection from "../components/GuardianDeclarationSection";
 import PersonalDetailsSection from "../components/PersonalDetailsSection";
 import PreviousExamSection from "../components/PreviousExamSection";
@@ -96,6 +98,9 @@ export default function AdmissionFormPage() {
     },
   });
 
+  const [documentsChecked, setDocumentsChecked] = useState<
+    Record<string, boolean>
+  >({});
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -104,10 +109,11 @@ export default function AdmissionFormPage() {
     }
   }, [student]);
 
-  // Form is editable when no status (draft) or when pending (submitted but not yet decided).
-  // Form is locked once approved or rejected.
   const isFormDisabled =
     student?.status === "approved" || student?.status === "rejected";
+
+  const toggleDocument = (id: string) =>
+    setDocumentsChecked((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const validateForm = (): boolean => {
     // --- Personal Details ---
@@ -229,7 +235,6 @@ export default function AdmissionFormPage() {
       toast.error("Father's Contact must be exactly 10 digits");
       return false;
     }
-    // Mother's Contact is optional — validate format only if provided
     if (formData.mothersContact && !/^\d{10}$/.test(formData.mothersContact)) {
       toast.error("Mother's Contact must be exactly 10 digits");
       return false;
@@ -307,7 +312,7 @@ export default function AdmissionFormPage() {
       return false;
     }
 
-    // --- Subject Selection (Class 9 & 10: M.I.L. and S.I.L. required; Extra is optional) ---
+    // --- Subject Selection ---
     if (student?._class === "class09th" || student?._class === "class10th") {
       if (!formData.subjects?.mil?.length) {
         toast.error("M.I.L. Subject selection is required");
@@ -321,7 +326,6 @@ export default function AdmissionFormPage() {
         toast.error("Please select at least one Compulsory Subject");
         return false;
       }
-      // Extra subject is optional — no validation needed
     }
 
     if (student?._class === "class11th" || student?._class === "class12th") {
@@ -333,7 +337,15 @@ export default function AdmissionFormPage() {
         toast.error("Please select at least one stream subject");
         return false;
       }
-      // Extra subject is optional — no validation needed
+    }
+
+    // --- Documents Checklist (all mandatory) ---
+    const uncheckedDoc = DOCUMENTS.find((doc) => !documentsChecked[doc.id]);
+    if (uncheckedDoc) {
+      toast.error(
+        `Documents Checklist: Please confirm "${uncheckedDoc.label}" is available`,
+      );
+      return false;
     }
 
     // --- Declaration ---
@@ -466,7 +478,11 @@ export default function AdmissionFormPage() {
           />
         )}
 
-        <DocumentsChecklistSection />
+        <DocumentsChecklistSection
+          checked={documentsChecked}
+          onChange={toggleDocument}
+          disabled={isFormDisabled}
+        />
 
         <GuardianDeclarationSection
           formData={formData}

@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
 
 const DOCUMENTS = [
   {
@@ -46,39 +45,63 @@ const DOCUMENTS = [
   },
 ];
 
-export default function DocumentsChecklistSection() {
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
+interface Props {
+  checked: Record<string, boolean>;
+  onChange: (id: string) => void;
+  disabled?: boolean;
+}
 
-  const toggle = (id: string) =>
-    setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
+export default function DocumentsChecklistSection({
+  checked,
+  onChange,
+  disabled,
+}: Props) {
+  const allChecked = DOCUMENTS.every((doc) => checked[doc.id]);
 
   return (
-    <Card>
+    <Card className="border-red-200">
       <CardHeader>
-        <CardTitle>Documents Checklist / दस्तावेज़ चेकलिस्ट</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          Documents Checklist / दस्तावेज़ चेकलिस्ट
+          <span className="text-red-500 text-sm font-semibold">
+            * Mandatory / अनिवार्य
+          </span>
+        </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Confirm that you have the following documents ready for submission.
+          All documents below must be confirmed before submitting the form.
           <br />
           <span lang="hi">
-            कृपया पुष्टि करें कि आपके पास निम्नलिखित दस्तावेज़ जमा करने के लिए तैयार हैं।
+            फॉर्म जमा करने से पहले नीचे दिए गए सभी दस्तावेज़ों की पुष्टि करना अनिवार्य है।
           </span>
         </p>
+        {!allChecked && (
+          <p className="text-xs text-red-500 font-medium mt-1">
+            ⚠ Please confirm all documents before final submission.
+          </p>
+        )}
       </CardHeader>
       <CardContent>
         <div className="grid gap-3 sm:grid-cols-2">
           {DOCUMENTS.map((doc) => (
             <div
               key={doc.id}
-              className="flex items-start space-x-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/60 transition-colors"
+              className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors ${
+                checked[doc.id]
+                  ? "border-green-400 bg-green-50"
+                  : "border-red-200 bg-red-50/40 hover:bg-red-50/70"
+              }`}
             >
               <Checkbox
                 id={doc.id}
                 checked={checked[doc.id] || false}
-                onCheckedChange={() => toggle(doc.id)}
+                onCheckedChange={() => !disabled && onChange(doc.id)}
+                disabled={disabled}
                 className="mt-0.5"
               />
               <Label htmlFor={doc.id} className="cursor-pointer leading-snug">
-                <span className="block font-medium text-sm">{doc.label}</span>
+                <span className="block font-medium text-sm">
+                  {doc.label} <span className="text-red-500">*</span>
+                </span>
                 <span
                   className="block text-xs text-muted-foreground mt-0.5"
                   lang="hi"
@@ -93,3 +116,5 @@ export default function DocumentsChecklistSection() {
     </Card>
   );
 }
+
+export { DOCUMENTS };
