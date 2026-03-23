@@ -552,8 +552,104 @@ export default function PrintableAdmissionForm({
             </>
           )}
 
-          {/* ---- SECTION 8: Declaration ---- */}
-          <SectionTitle title="8. Declaration / घोषणा (अभिभावक का घोषणा)" />
+          {/* ---- SECTION 8: Documents Checklist ---- */}
+          <SectionTitle title="8. Documents Checklist / दस्तावेज़ चेकलिस्ट" />
+          <div
+            style={{
+              border: "1px solid #bbb",
+              padding: "5px 8px",
+              borderRadius: "4px",
+              marginBottom: "4px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "7.5pt",
+                marginBottom: "3px",
+                fontWeight: 600,
+              }}
+            >
+              Confirm that you have the following documents / निम्नलिखित दस्तावेज़ों
+              की पुष्टि करें:
+            </p>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "2px 8px",
+              }}
+            >
+              {[
+                { label: "Caste Certificate", hindi: "जाति प्रमाण पत्र" },
+                { label: "Income Certificate", hindi: "आय प्रमाण पत्र" },
+                { label: "Residence Certificate", hindi: "निवास प्रमाण पत्र" },
+                {
+                  label: "Transfer Certificate (Original)",
+                  hindi: "स्थानांतरण प्रमाण पत्र (मूल)",
+                },
+                {
+                  label: "Previous Class Marksheets",
+                  hindi: "पिछली कक्षा की अंकसूची",
+                },
+                {
+                  label: "Student Aadhaar Card Photocopy",
+                  hindi: "छात्र/छात्रा आधार कार्ड फोटोकॉपी",
+                },
+                {
+                  label: "Mother's Aadhaar Card Photocopy",
+                  hindi: "माता का आधार कार्ड फोटोकॉपी",
+                },
+                {
+                  label: "Father's Aadhaar Card Photocopy",
+                  hindi: "पिता का आधार कार्ड फोटोकॉपी",
+                },
+              ].map((doc) => (
+                <div
+                  key={doc.label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    padding: "1px 0",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "10px",
+                      height: "10px",
+                      border: "1px solid #333",
+                      borderRadius: "2px",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#e8f5e9",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "7pt",
+                        color: "#2e7d32",
+                        fontWeight: "bold",
+                        lineHeight: 1,
+                      }}
+                    >
+                      ✓
+                    </span>
+                  </div>
+                  <span style={{ fontSize: "7pt" }}>
+                    {doc.label}{" "}
+                    <span lang="hi" style={{ color: "#555" }}>
+                      / {doc.hindi}
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ---- SECTION 9: Declaration ---- */}
+          <SectionTitle title="9. Declaration / घोषणा (अभिभावक का घोषणा)" />
           <div
             style={{
               border: "1px solid #bbb",

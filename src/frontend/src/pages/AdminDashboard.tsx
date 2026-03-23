@@ -315,6 +315,52 @@ function ApplicationDetailModal({
                   value={form.subjects?.extraSubjects || form.subjects?.extra}
                 />
 
+                {/* Documents Checklist */}
+                <SectionTitle title="Documents Checklist / दस्तावेज़ चेकलिस्ट" />
+                <div className="grid grid-cols-2 gap-1 mb-2">
+                  {[
+                    { label: "Caste Certificate", hindi: "जाति प्रमाण पत्र" },
+                    { label: "Income Certificate", hindi: "आय प्रमाण पत्र" },
+                    {
+                      label: "Residence Certificate",
+                      hindi: "निवास प्रमाण पत्र",
+                    },
+                    {
+                      label: "Transfer Certificate (Original)",
+                      hindi: "स्थानांतरण प्रमाण पत्र (मूल)",
+                    },
+                    {
+                      label: "Previous Class Marksheets",
+                      hindi: "पिछली कक्षा की अंकसूची",
+                    },
+                    {
+                      label: "Student Aadhaar Card Photocopy",
+                      hindi: "छात्र/छात्रा आधार कार्ड फोटोकॉपी",
+                    },
+                    {
+                      label: "Mother's Aadhaar Card Photocopy",
+                      hindi: "माता का आधार कार्ड फोटोकॉपी",
+                    },
+                    {
+                      label: "Father's Aadhaar Card Photocopy",
+                      hindi: "पिता का आधार कार्ड फोटोकॉपी",
+                    },
+                  ].map((doc) => (
+                    <div
+                      key={doc.label}
+                      className="flex items-center gap-1.5 text-xs py-0.5"
+                    >
+                      <span className="text-green-600 font-bold">✓</span>
+                      <span>
+                        {doc.label}{" "}
+                        <span className="text-muted-foreground" lang="hi">
+                          / {doc.hindi}
+                        </span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Declaration */}
                 <SectionTitle title="Declaration" />
                 <DetailRow
