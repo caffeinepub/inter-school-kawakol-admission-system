@@ -34,7 +34,7 @@ export default function SchoolHeader() {
               +2 उच्च विद्यालय कौआकोल, (नवादा)
             </h1>
             <p className="text-lg md:text-xl font-semibold text-yellow-300 drop-shadow-md mt-0.5">
-              स्थापित १९७० ई.
+              स्थापित - 1957 ई.
             </p>
             <p className="text-sm md:text-base text-white/90 mt-1 drop-shadow-sm">
               INTER SCHOOL KAWAKOL, Nawada, Bihar - Admission Portal
