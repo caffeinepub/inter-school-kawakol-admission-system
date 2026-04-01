@@ -171,20 +171,16 @@ function ApplicationDetailModal({
                 />
                 <DetailRow label="Gender" value={form.gender} />
                 <DetailRow label="Category" value={form.category} />
+                <DetailRow label="Religion (धर्म)" value={form.emailId} />
+                <DetailRow label="Caste (जाति)" value={form.mobileNumber} />
                 <DetailRow label="PEN Number" value={form.studentPen} />
                 <DetailRow label="APPAR Number" value={form.apparNumber} />
                 <DetailRow
                   label="E-Shikshakosh Number"
                   value={form.eShikshakoshNumber}
                 />
-                <DetailRow
-                  label="Student Phone"
-                  value={form.studentPhone || form.mobileNumber}
-                />
-                <DetailRow
-                  label="Student Email"
-                  value={form.studentEmail || form.emailId}
-                />
+                <DetailRow label="Student Phone" value={form.studentPhone} />
+                <DetailRow label="Student Email" value={form.studentEmail} />
                 <DetailRow label="Aadhaar Number" value={form.aadharNumber} />
                 <DetailRow
                   label="Physically Handicapped"
@@ -255,7 +251,7 @@ function ApplicationDetailModal({
                   value={form.mothersOccupation}
                 />
                 <DetailRow
-                  label="Mother's Contact"
+                  label="Mother's / Guardian Contact Number"
                   value={form.mothersContact}
                 />
                 <DetailRow label="Mother's Aadhaar" value={form.motherAadhar} />

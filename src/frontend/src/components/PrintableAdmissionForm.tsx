@@ -45,8 +45,8 @@ export default function PrintableAdmissionForm({
       ews: "EWS",
       sc: "SC",
       st: "ST",
-      bci: "BC - I",
-      bcii: "BC - II",
+      bci: "EBC",
+      bcii: "BC",
     };
     return categoryMap[category] || category;
   };
@@ -393,7 +393,7 @@ export default function PrintableAdmissionForm({
             <Field label="Mother's Occupation" value={form.mothersOccupation} />
             <Field label="Father's Contact" value={form.fathersContact} />
             <Field
-              label="Mother's Contact"
+              label="Mother's / Guardian Contact Number"
               value={form.mothersContact || "—"}
             />
             <Field

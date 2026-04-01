@@ -26,6 +26,14 @@ interface PersonalDetailsSectionProps {
   disabled?: boolean;
 }
 
+const RELIGION_OPTIONS = [
+  "Christianity",
+  "Islam",
+  "Hinduism",
+  "Buddhism",
+  "Other",
+];
+
 export default function PersonalDetailsSection({
   formData,
   setFormData,
@@ -37,19 +45,26 @@ export default function PersonalDetailsSection({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // religion is stored in emailId field; caste in mobileNumber field
+  const religionValue = formData.emailId || "";
+  const casteValue = formData.mobileNumber || "";
+  const isOtherReligion =
+    religionValue !== "" &&
+    !RELIGION_OPTIONS.slice(0, -1).includes(religionValue);
+  // If emailId holds a non-standard value, it means user typed custom religion
+  const selectedReligionDropdown = isOtherReligion ? "Other" : religionValue;
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const validTypes = ["image/jpeg", "image/jpg", "image/png"];
     if (!validTypes.includes(file.type)) {
       toast.error("Invalid file type. Please upload JPG or PNG images only.");
       return;
     }
 
-    // Validate file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       toast.error("File size exceeds 5MB. Please upload a smaller image.");
       return;
@@ -58,22 +73,18 @@ export default function PersonalDetailsSection({
     setIsUploading(true);
 
     try {
-      // Convert file to Uint8Array
       const arrayBuffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
 
-      // Create ExternalBlob with upload progress
       const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress(
         (percentage) => {
           console.log(`Upload progress: ${percentage}%`);
         },
       );
 
-      // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setPhotoPreview(previewUrl);
 
-      // Update form data
       setFormData({ ...formData, photo: blob });
       toast.success("Photo uploaded successfully");
     } catch (error) {
@@ -284,10 +295,62 @@ export default function PersonalDetailsSection({
                 <SelectItem value="ews">EWS</SelectItem>
                 <SelectItem value="sc">SC</SelectItem>
                 <SelectItem value="st">ST</SelectItem>
-                <SelectItem value="bci">BC - I</SelectItem>
-                <SelectItem value="bcii">BC - II</SelectItem>
+                <SelectItem value="bci">EBC</SelectItem>
+                <SelectItem value="bcii">BC</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+
+        {/* Religion and Caste */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="religion">Religion (धर्म) *</Label>
+            <Select
+              value={selectedReligionDropdown}
+              onValueChange={(value) => {
+                if (value === "Other") {
+                  // Clear to empty so user can type custom
+                  setFormData({ ...formData, emailId: "" });
+                } else {
+                  setFormData({ ...formData, emailId: value });
+                }
+              }}
+              disabled={disabled}
+            >
+              <SelectTrigger id="religion">
+                <SelectValue placeholder="Select religion" />
+              </SelectTrigger>
+              <SelectContent>
+                {RELIGION_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedReligionDropdown === "Other" && (
+              <Input
+                placeholder="Please specify your religion"
+                value={isOtherReligion ? religionValue : ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, emailId: e.target.value })
+                }
+                disabled={disabled}
+              />
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="caste">Caste (जाति) *</Label>
+            <Input
+              id="caste"
+              value={casteValue}
+              onChange={(e) =>
+                setFormData({ ...formData, mobileNumber: e.target.value })
+              }
+              placeholder="Enter your caste"
+              disabled={disabled}
+            />
           </div>
         </div>
 

@@ -145,6 +145,14 @@ export default function AdmissionFormPage() {
       toast.error("Student Aadhaar Number is required");
       return false;
     }
+    if (!formData.emailId?.trim()) {
+      toast.error("Religion is required");
+      return false;
+    }
+    if (!formData.mobileNumber?.trim()) {
+      toast.error("Caste is required");
+      return false;
+    }
     if (!formData.annualFamilyIncome?.trim()) {
       toast.error("Annual Family Income is required");
       return false;
@@ -235,8 +243,14 @@ export default function AdmissionFormPage() {
       toast.error("Father's Contact must be exactly 10 digits");
       return false;
     }
-    if (formData.mothersContact && !/^\d{10}$/.test(formData.mothersContact)) {
-      toast.error("Mother's Contact must be exactly 10 digits");
+    if (!formData.mothersContact?.trim()) {
+      toast.error("Mother's / Guardian Contact Number is required");
+      return false;
+    }
+    if (!/^\d{10}$/.test(formData.mothersContact)) {
+      toast.error(
+        "Mother's / Guardian Contact Number must be exactly 10 digits",
+      );
       return false;
     }
     if (!formData.fathersNameAsPerAadhaar?.trim()) {

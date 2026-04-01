@@ -89,7 +89,9 @@ export default function ContactDetailsSection({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="mothersContact">Mother's Contact</Label>
+            <Label htmlFor="mothersContact">
+              Mother's / Guardian Contact Number *
+            </Label>
             <Input
               id="mothersContact"
               type="tel"
@@ -97,7 +99,7 @@ export default function ContactDetailsSection({
               onChange={(e) =>
                 setFormData({ ...formData, mothersContact: e.target.value })
               }
-              placeholder="10-digit mobile number (optional)"
+              placeholder="10-digit mobile number"
               disabled={disabled}
             />
           </div>
