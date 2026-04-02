@@ -16,8 +16,8 @@ export default function Layout({ children }: LayoutProps) {
         <footer className="border-t py-6 bg-card">
           <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
             <p>
-              © {new Date().getFullYear()} Inter School Kawakol, Nawada, Bihar.
-              All rights reserved.
+              © {new Date().getFullYear()} Rajkiyakrit Uchch Madhyamik Vidyalaya
+              Kawakol, Nawada. All rights reserved.
             </p>
             <p className="mt-2">
               Built with ❤️ using{" "}

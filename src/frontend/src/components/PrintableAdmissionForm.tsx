@@ -196,12 +196,17 @@ export default function PrintableAdmissionForm({
               />
               <div>
                 <div
-                  style={{ fontSize: "13pt", fontWeight: 700, color: "#222" }}
+                  style={{ fontSize: "11pt", fontWeight: 700, color: "#222" }}
                 >
-                  INTER SCHOOL KAWAKOL
+                  राजकीयकृत उच्च माध्यमिक विद्यालय कौआकोल - (नवादा)
+                </div>
+                <div
+                  style={{ fontSize: "8pt", fontWeight: 600, color: "#444" }}
+                >
+                  मॉडल स्कूल कौआकोल - (नवादा) - 805106
                 </div>
                 <div style={{ fontSize: "8pt", color: "#555" }}>
-                  Nawada, Bihar
+                  Rajkiyakrit Uchch Madhyamik Vidyalaya Kawakol, Nawada, Bihar
                 </div>
                 <div style={{ fontSize: "7pt", color: "#666" }}>
                   School Code: 82021 &amp; 23054 | UDIS: 10360504011
@@ -769,8 +774,9 @@ export default function PrintableAdmissionForm({
               paddingTop: "3px",
             }}
           >
-            Inter School Kawakol, Nawada, Bihar | School Code: 82021 &amp; 23054
-            | UDIS: 10360504011
+            राजकीयकृत उच्च माध्यमिक विद्यालय कौआकोल - (नवादा) | मॉडल स्कूल कौआकोल -
+            (नवादा) - 805106 | School Code: 82021 &amp; 23054 | UDIS:
+            10360504011
           </div>
         </div>
       </CardContent>

@@ -31,13 +31,16 @@ export default function SchoolHeader() {
           />
           <div className="text-center">
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight drop-shadow-md">
-              +2 उच्च विद्यालय कौआकोल, (नवादा)
+              राजकीयकृत उच्च माध्यमिक विद्यालय कौआकोल - (नवादा)
             </h1>
+            <p className="text-base md:text-lg font-semibold text-white/90 drop-shadow-md mt-0.5">
+              मॉडल स्कूल कौआकोल - (नवादा) - 805106
+            </p>
             <p className="text-lg md:text-xl font-semibold text-yellow-300 drop-shadow-md mt-0.5">
               स्थापित - 1957 ई.
             </p>
             <p className="text-sm md:text-base text-white/90 mt-1 drop-shadow-sm">
-              INTER SCHOOL KAWAKOL, Nawada, Bihar - Admission Portal
+              RAJKIYAKRIT UCHCH MADHYAMIK VIDYALAYA KAWAKOL - (NAWADA)
             </p>
           </div>
         </div>
