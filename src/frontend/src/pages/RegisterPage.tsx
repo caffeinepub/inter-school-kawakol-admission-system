@@ -32,16 +32,14 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Class } from "../backend";
-import type { backendInterface as ExtendedBackend } from "../backend.d";
 import { useActor } from "../hooks/useActor";
 import { useRegisterStudent } from "../hooks/useQueries";
 import { getCanisterErrorMessage } from "../utils/errorHandling";
+import { generateOtp, verifyOtp } from "../utils/otpService";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { actor: rawActor, isFetching: actorLoading } = useActor();
-  // Cast to extended type that includes OTP methods
-  const actor = rawActor as unknown as ExtendedBackend | null;
+  const { actor, isFetching: actorLoading } = useActor();
 
   const [formData, setFormData] = useState({
     class: "" as Class | "",
@@ -65,7 +63,6 @@ export default function RegisterPage() {
 
   const registerMutation = useRegisterStudent();
 
-  // Cleanup countdown on unmount
   useEffect(() => {
     return () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
@@ -99,70 +96,63 @@ export default function RegisterPage() {
     return true;
   };
 
-  const handleSendOtp = async () => {
+  const handleSendOtp = () => {
     if (!validateEmailField()) return;
-    if (!actor) {
-      toast.error("Connecting to server, please wait and try again.");
-      return;
-    }
     setOtpLoading(true);
     setOtpError(null);
-    try {
-      const otp = await actor.generateOtp(formData.email);
-      setOtpSent(true);
-      setOtpValue("");
-      startCountdown();
-      toast.info(
-        `OTP सत्यापन / Your OTP is: ${otp} — Please enter it below to verify your email.`,
-        { duration: 15000 },
-      );
-    } catch (error: unknown) {
-      const msg = getCanisterErrorMessage(error);
-      setOtpError(msg);
-      toast.error(msg);
-    } finally {
-      setOtpLoading(false);
-    }
+
+    // Generate OTP locally (no backend call needed)
+    const otp = generateOtp(formData.email);
+    setOtpSent(true);
+    setOtpValue("");
+    startCountdown();
+    setOtpLoading(false);
+
+    // Show OTP in a prominent toast notification
+    toast.info(
+      `📋 आपका OTP / Your OTP is: ${otp}\n\nनीचे दर्ज करें / Enter below to verify your email.`,
+      {
+        duration: 20000,
+        style: {
+          fontSize: "16px",
+          fontWeight: "bold",
+          backgroundColor: "#1e40af",
+          color: "white",
+          border: "2px solid #3b82f6",
+          padding: "16px",
+        },
+      },
+    );
   };
 
-  const handleVerifyOtp = async () => {
+  const handleVerifyOtp = () => {
     if (otpValue.length !== 6) {
       setOtpError("Please enter the 6-digit OTP.");
       return;
     }
-    if (!actor) {
-      toast.error("Connecting to server, please wait and try again.");
-      return;
-    }
     setVerifyLoading(true);
     setOtpError(null);
-    try {
-      const valid = await actor.verifyOtp(formData.email, otpValue);
-      if (valid) {
-        setEmailVerified(true);
-        setOtpSent(false);
-        toast.success("Email verified successfully! / ईमेल सत्यापित हो गया!");
-      } else {
-        setOtpError("Invalid OTP. Please try again. / गलत OTP, पुनः प्रयास करें।");
-      }
-    } catch (error: unknown) {
-      const msg = getCanisterErrorMessage(error);
-      if (msg.toLowerCase().includes("expir")) {
-        setOtpError(
-          "OTP expired. Please request a new one. / OTP की समय सीमा समाप्त हो गई।",
-        );
-      } else {
-        setOtpError(msg);
-      }
-    } finally {
-      setVerifyLoading(false);
+
+    const result = verifyOtp(formData.email, otpValue);
+    setVerifyLoading(false);
+
+    if (result.valid) {
+      setEmailVerified(true);
+      setOtpSent(false);
+      toast.success("Email verified successfully! / ईमेल सत्यापित हो गया!");
+    } else if (result.expired) {
+      setOtpError(
+        "OTP expired. Please request a new one. / OTP की समय सीमा समाप्त हो गई।",
+      );
+    } else {
+      setOtpError("Invalid OTP. Please try again. / गलत OTP, पुनः प्रयास करें।");
     }
   };
 
-  const handleResendOtp = async () => {
+  const handleResendOtp = () => {
     setOtpValue("");
     setOtpError(null);
-    await handleSendOtp();
+    handleSendOtp();
   };
 
   const validateForm = () => {
@@ -334,12 +324,7 @@ export default function RegisterPage() {
                     size="sm"
                     className="shrink-0 mt-0"
                     onClick={handleSendOtp}
-                    disabled={
-                      otpLoading ||
-                      !actor ||
-                      actorLoading ||
-                      (otpSent && countdown > 0)
-                    }
+                    disabled={otpLoading || (otpSent && countdown > 0)}
                     data-ocid="register.send_otp.button"
                   >
                     {otpLoading ? (
@@ -370,9 +355,13 @@ export default function RegisterPage() {
 
               {/* OTP Input Section */}
               {otpSent && !emailVerified && (
-                <div className="mt-3 p-4 bg-muted/50 rounded-lg border border-border space-y-3">
-                  <p className="text-sm font-medium text-foreground">
-                    OTP सत्यापन — Enter the 6-digit OTP sent to your email
+                <div className="mt-3 p-4 bg-blue-50 rounded-lg border border-blue-200 space-y-3">
+                  <p className="text-sm font-semibold text-blue-800">
+                    ✅ OTP screen पर दिख रहा है — नीचे देखें और 6-digit OTP दर्ज करें
+                  </p>
+                  <p className="text-xs text-blue-600">
+                    OTP is shown in the notification at the top of the screen.
+                    Enter it below.
                   </p>
 
                   <div className="flex justify-center">
