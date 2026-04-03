@@ -5,6 +5,7 @@ import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Int "mo:core/Int";
+import Nat "mo:core/Nat";
 
 
 import MixinStorage "blob-storage/Mixin";
@@ -113,6 +114,11 @@ actor {
     isStudent : Bool;
   };
 
+  type OtpRecord = {
+    otp : Text;
+    expiry : Int; // nanoseconds timestamp
+  };
+
   module Student {
     public func compareByRegistrationDate(student1 : Student, student2 : Student) : Order.Order {
       Int.compare(student1.registrationDate, student2.registrationDate);
@@ -132,6 +138,9 @@ actor {
   let students = Map.empty<Text, Student>();
   let principalToEmail = Map.empty<Principal, Text>();
   let userProfiles = Map.empty<Principal, UserProfile>();
+
+  // OTP storage: email -> OtpRecord (in-memory, short-lived)
+  let otpStore = Map.empty<Text, OtpRecord>();
 
   // Restore data from stable storage on init/upgrade
   do {
@@ -204,27 +213,97 @@ actor {
     })
   };
 
+  // --- OTP Helpers ---
+
+  // Generate a pseudo-random 6-digit OTP based on time
+  private func generateOtpCode() : Text {
+    let t : Int = Time.now();
+    let raw : Int = (t / 1_000_000) % 1_000_000;
+    let n : Nat = if (raw < 0) { 0 } else { Int.abs(raw) };
+    // ensure 6 digits
+    padNat(100_000 + (n % 900_000), 6)
+  };
+
+  // OTP valid for 10 minutes (in nanoseconds)
+  let OTP_EXPIRY_NS : Int = 10 * 60 * 1_000_000_000;
+
+  // Generate and store OTP for given email; returns the OTP string (for simulation display)
+  public shared func generateOtp(email : Text) : async Text {
+    let otp = generateOtpCode();
+    let expiry : Int = Time.now() + OTP_EXPIRY_NS;
+    let record : OtpRecord = { otp; expiry };
+    otpStore.add(email, record);
+    otp // returned so frontend can display it (since email sending is not available)
+  };
+
+  // Verify OTP for given email; returns true if valid and not expired
+  public query func verifyOtp(email : Text, otp : Text) : async Bool {
+    switch (otpStore.get(email)) {
+      case (null) { false };
+      case (?record) {
+        if (Time.now() > record.expiry) { false }
+        else { record.otp == otp }
+      };
+    };
+  };
+
+  // Reset password: verify OTP then update password
+  public shared func resetPassword(email : Text, otp : Text, newPassword : Text) : async () {
+    switch (otpStore.get(email)) {
+      case (null) { Runtime.trap("OTP not found or expired") };
+      case (?record) {
+        if (Time.now() > record.expiry) {
+          Runtime.trap("OTP has expired. Please request a new OTP.");
+        };
+        if (record.otp != otp) {
+          Runtime.trap("Invalid OTP");
+        };
+        // OTP valid — update student password
+        switch (students.get(email)) {
+          case (null) { Runtime.trap("No account found with this email") };
+          case (?student) {
+            let updatedStudent : Student = {
+              principal = student.principal;
+              _class = student._class;
+              name = student.name;
+              email = student.email;
+              password = newPassword;
+              registrationDate = student.registrationDate;
+              form = student.form;
+              status = student.status;
+            };
+            students.add(email, updatedStudent);
+            // Remove used OTP
+            ignore otpStore.remove(email);
+          };
+        };
+      };
+    };
+  };
+
+  // --- Registration ---
+
   private func isRegisteredStudent(caller : Principal) : Bool {
     switch (principalToEmail.get(caller)) {
       case (null) { false };
       case (?email) {
         switch (students.get(email)) {
           case (null) { false };
-          case (?student) { true };
+          case (?_student) { true };
         };
       };
     };
   };
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    userProfiles.get(caller);
+    userProfiles.get(caller)
   };
 
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
-    userProfiles.get(user);
+    userProfiles.get(user)
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
@@ -356,7 +435,7 @@ actor {
     if (adminPassword != ADMIN_PASSWORD) {
       Runtime.trap("Unauthorized: Invalid admin password");
     };
-    students.values().toArray();
+    students.values().toArray()
   };
 
   public shared func approveApplicationForAdmin(email : Text, adminPassword : Text) : async () {
@@ -426,35 +505,35 @@ actor {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can view all applications");
     };
-    students.values().toArray();
+    students.values().toArray()
   };
 
   public query ({ caller }) func getAllPendingApplications() : async [Student] {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can view pending applications");
     };
-    students.values().toArray().filter(func(student) { student.status == #pending });
+    students.values().toArray().filter(func(student : Student) : Bool { student.status == #pending })
   };
 
   public query ({ caller }) func getAllApprovedApplications() : async [Student] {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can view approved applications");
     };
-    students.values().toArray().filter(func(student) { student.status == #approved });
+    students.values().toArray().filter(func(student : Student) : Bool { student.status == #approved })
   };
 
   public query ({ caller }) func getAllRejectedApplications() : async [Student] {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can view rejected applications");
     };
-    students.values().toArray().filter(func(student) { student.status == #rejected });
+    students.values().toArray().filter(func(student : Student) : Bool { student.status == #rejected })
   };
 
   public query ({ caller }) func getApplicationsSortedByDate() : async [Student] {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can view applications");
     };
-    students.values().toArray().sort(Student.compareByRegistrationDate);
+    students.values().toArray().sort(Student.compareByRegistrationDate)
   };
 
   public query ({ caller }) func getStudent(email : Text) : async Student {

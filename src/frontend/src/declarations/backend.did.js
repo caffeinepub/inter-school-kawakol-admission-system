@@ -206,6 +206,9 @@ export const idlService = IDL.Service({
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'saveDraft' : IDL.Func([IDL.Text, AdmissionForm], [], []),
   'submitForm' : IDL.Func([IDL.Text, AdmissionForm], [], []),
+  'generateOtp' : IDL.Func([IDL.Text], [IDL.Text], []),
+  'verifyOtp' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], ['query']),
+  'resetPassword' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
@@ -413,6 +416,9 @@ export const idlFactory = ({ IDL }) => {
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'saveDraft' : IDL.Func([IDL.Text, AdmissionForm], [], []),
     'submitForm' : IDL.Func([IDL.Text, AdmissionForm], [], []),
+    'generateOtp' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'verifyOtp' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], ['query']),
+    'resetPassword' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
   });
 };
 

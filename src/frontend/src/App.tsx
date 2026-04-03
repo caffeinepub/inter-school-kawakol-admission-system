@@ -12,6 +12,7 @@ import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdmissionFormPage from "./pages/AdmissionFormPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import StudentDashboard from "./pages/StudentDashboard";
@@ -44,6 +45,12 @@ const loginRoute = createRoute({
   component: LoginPage,
 });
 
+const forgotPasswordRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/forgot-password",
+  component: ForgotPasswordPage,
+});
+
 const adminLoginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/admin/login",
@@ -74,6 +81,7 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   registerRoute,
   loginRoute,
+  forgotPasswordRoute,
   adminLoginRoute,
   admissionFormRoute,
   studentDashboardRoute,

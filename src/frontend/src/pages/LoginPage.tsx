@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "@tanstack/react-router";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, KeyRound, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useActor } from "../hooks/useActor";
@@ -116,7 +116,18 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/forgot-password" })}
+                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                  data-ocid="login.forgot_password.link"
+                >
+                  <KeyRound className="h-3 w-3" />
+                  Forgot Password? / पासवर्ड भूल गए?
+                </button>
+              </div>
               <Input
                 id="password"
                 type="password"
