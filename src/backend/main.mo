@@ -280,6 +280,26 @@ actor {
       };
     };
   };
+  // Reset password directly (OTP verified on frontend)
+  public shared func resetPasswordDirect(email : Text, newPassword : Text) : async () {
+    switch (students.get(email)) {
+      case (null) { Runtime.trap("No account found with this email") };
+      case (?student) {
+        let updatedStudent : Student = {
+          principal = student.principal;
+          _class = student._class;
+          name = student.name;
+          email = student.email;
+          password = newPassword;
+          registrationDate = student.registrationDate;
+          form = student.form;
+          status = student.status;
+        };
+        students.add(email, updatedStudent);
+      };
+    };
+  };
+
 
   // --- Registration ---
 

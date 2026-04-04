@@ -159,7 +159,7 @@ export default function ForgotPasswordPage() {
     });
   };
 
-  // Step 3: Reset Password via backend
+  // Step 3: Reset Password via backend (OTP already verified on frontend)
   const handleResetPassword = async () => {
     let valid = true;
     if (!newPassword) {
@@ -184,28 +184,15 @@ export default function ForgotPasswordPage() {
     }
     setResetLoading(true);
     try {
-      // Use the backend's resetPasswordDirect which takes just email + new password
-      // Fall back to updatePassword if available, otherwise show success with note
-      await (
-        actor as unknown as {
-          resetPasswordDirect?: (e: string, p: string) => Promise<void>;
-        }
-      ).resetPasswordDirect?.(email, newPassword);
+      // Call resetPasswordDirect — OTP was already verified on the frontend
+      await actor.resetPasswordDirect(email.trim(), newPassword);
       toast.success(
         "Password reset successful! / पासवर्ड सफलतापूर्वक रीसेट हो गया!",
       );
       navigate({ to: "/login" });
     } catch (error: unknown) {
-      // If backend doesn't have this method, still navigate — password is stored locally
       const msg = getCanisterErrorMessage(error);
-      if (msg.includes("not a function") || msg.includes("undefined")) {
-        toast.success(
-          "Password reset successful! Please login with your new password.",
-        );
-        navigate({ to: "/login" });
-      } else {
-        toast.error(msg);
-      }
+      toast.error(msg || "Password reset failed. Please try again.");
     } finally {
       setResetLoading(false);
     }

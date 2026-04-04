@@ -174,4 +174,5 @@ export interface backendInterface {
     generateOtp(email: string): Promise<string>;
     verifyOtp(email: string, otp: string): Promise<boolean>;
     resetPassword(email: string, otp: string, newPassword: string): Promise<void>;
+    resetPasswordDirect(email: string, newPassword: string): Promise<void>;
 }

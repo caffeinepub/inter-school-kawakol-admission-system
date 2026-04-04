@@ -264,6 +264,7 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveDraft(email: string, form: AdmissionForm): Promise<void>;
     submitForm(email: string, form: AdmissionForm): Promise<void>;
+    resetPasswordDirect(email: string, newPassword: string): Promise<void>;
 }
 import type { AdmissionForm as _AdmissionForm, ApplicationStatus as _ApplicationStatus, BankName as _BankName, Category as _Category, Class as _Class, ExternalBlob as _ExternalBlob, Gender as _Gender, PassingDivision as _PassingDivision, State as _State, Stream as _Stream, Student as _Student, SubjectSelection as _SubjectSelection, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -713,6 +714,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.submitForm(arg0, await to_candid_AdmissionForm_n49(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async resetPasswordDirect(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.resetPasswordDirect(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.resetPasswordDirect(arg0, arg1);
             return result;
         }
     }

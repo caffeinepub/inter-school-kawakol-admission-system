@@ -177,6 +177,7 @@ export interface _SERVICE {
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveDraft' : ActorMethod<[string, AdmissionForm], undefined>,
   'submitForm' : ActorMethod<[string, AdmissionForm], undefined>,
+  'resetPasswordDirect' : ActorMethod<[string, string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

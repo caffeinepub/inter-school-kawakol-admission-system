@@ -209,6 +209,7 @@ export const idlService = IDL.Service({
   'generateOtp' : IDL.Func([IDL.Text], [IDL.Text], []),
   'verifyOtp' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], ['query']),
   'resetPassword' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
+    'resetPasswordDirect' : IDL.Func([IDL.Text, IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
@@ -419,6 +420,7 @@ export const idlFactory = ({ IDL }) => {
     'generateOtp' : IDL.Func([IDL.Text], [IDL.Text], []),
     'verifyOtp' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], ['query']),
     'resetPassword' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
+    'resetPasswordDirect' : IDL.Func([IDL.Text, IDL.Text], [], []),
   });
 };
 
