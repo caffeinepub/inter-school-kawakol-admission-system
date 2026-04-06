@@ -151,6 +151,23 @@ export default function StudentDashboard() {
           {student.status !== "draft" && (
             <div className="p-4 bg-muted rounded-lg">
               <p className="text-sm">{getStatusMessage()}</p>
+              {student.status === "rejected" &&
+                (() => {
+                  const reason = localStorage.getItem(
+                    `rejection_reason_${student.email}`,
+                  );
+                  return reason ? (
+                    <div
+                      className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md"
+                      data-ocid="dashboard.rejection.panel"
+                    >
+                      <p className="text-sm font-semibold text-red-700">
+                        Rejection Reason / अस्वीकृति का कारण:
+                      </p>
+                      <p className="text-sm text-red-600 mt-1">{reason}</p>
+                    </div>
+                  ) : null;
+                })()}
             </div>
           )}
 

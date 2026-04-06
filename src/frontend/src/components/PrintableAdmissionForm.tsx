@@ -329,6 +329,8 @@ export default function PrintableAdmissionForm({
               label="Category (जाति श्रेणी)"
               value={getCategoryLabel(form.category)}
             />
+            <Field label="Religion (धर्म)" value={form.emailId || "-"} />
+            <Field label="Caste (जाति)" value={form.mobileNumber || "-"} />
             <Field
               label="Physically Handicapped (शारीरिक रूप से विकलांग)"
               value={form.physicallyHandicapped ? "Yes" : "No"}

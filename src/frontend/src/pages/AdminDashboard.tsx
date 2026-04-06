@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -18,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "@tanstack/react-router";
 import {
   CheckCircle,
@@ -89,10 +91,13 @@ function ApplicationDetailModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onApprove: (email: string) => Promise<void>;
-  onReject: (email: string) => Promise<void>;
+  onReject: (email: string, reason: string) => Promise<void>;
   isApproving: boolean;
   isRejecting: boolean;
 }) {
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [showRejectConfirm, setShowRejectConfirm] = useState(false);
+
   if (!student) return null;
   const form = student.form;
   const isPending = student.status === "pending";
@@ -119,13 +124,44 @@ function ApplicationDetailModal({
     onOpenChange(false);
   };
 
-  const handleReject = async () => {
-    await onReject(student.email);
+  const handleRejectClick = () => {
+    setRejectionReason("");
+    setShowRejectConfirm(true);
+  };
+
+  const handleConfirmReject = async () => {
+    if (!rejectionReason.trim()) {
+      toast.error(
+        "Please enter a rejection reason / कृपया अस्वीकृति का कारण दर्ज करें",
+      );
+      return;
+    }
+    localStorage.setItem(
+      `rejection_reason_${student.email}`,
+      rejectionReason.trim(),
+    );
+    await onReject(student.email, rejectionReason.trim());
+    setShowRejectConfirm(false);
+    setRejectionReason("");
     onOpenChange(false);
   };
 
+  const handleCancelReject = () => {
+    setShowRejectConfirm(false);
+    setRejectionReason("");
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(val) => {
+        if (!val) {
+          setShowRejectConfirm(false);
+          setRejectionReason("");
+        }
+        onOpenChange(val);
+      }}
+    >
       <DialogContent
         className="max-w-2xl w-full p-0"
         data-ocid="admin.application.dialog"
@@ -369,33 +405,80 @@ function ApplicationDetailModal({
         </ScrollArea>
 
         {isPending && (
-          <DialogFooter className="px-6 py-4 border-t gap-2">
-            <Button
-              variant="destructive"
-              onClick={handleReject}
-              disabled={isRejecting || isApproving}
-              data-ocid="admin.application.reject_button"
-            >
-              {isRejecting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <XCircle className="mr-2 h-4 w-4" />
-              )}
-              Reject Application
-            </Button>
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={handleApprove}
-              disabled={isApproving || isRejecting}
-              data-ocid="admin.application.confirm_button"
-            >
-              {isApproving ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <CheckCircle className="mr-2 h-4 w-4" />
-              )}
-              Approve Application
-            </Button>
+          <DialogFooter className="px-6 py-4 border-t gap-2 flex-col items-stretch">
+            {showRejectConfirm ? (
+              <div className="w-full space-y-3">
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="rejection-reason"
+                    className="text-sm font-semibold text-red-700"
+                  >
+                    Rejection Reason / अस्वीकृति का कारण{" "}
+                    <span className="text-red-500">*</span>
+                  </Label>
+                  <Textarea
+                    id="rejection-reason"
+                    placeholder="Enter reason for rejection (required) / अस्वीकृति का कारण दर्ज करें (अनिवार्य)"
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    className="min-h-[80px] border-red-200 focus-visible:ring-red-400"
+                    data-ocid="admin.application.textarea"
+                  />
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={handleCancelReject}
+                    disabled={isRejecting}
+                    data-ocid="admin.application.cancel_button"
+                  >
+                    Cancel / रद्द करें
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleConfirmReject}
+                    disabled={isRejecting || !rejectionReason.trim()}
+                    data-ocid="admin.application.confirm_button"
+                  >
+                    {isRejecting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <XCircle className="mr-2 h-4 w-4" />
+                    )}
+                    Confirm Reject / अस्वीकार करें
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="destructive"
+                  onClick={handleRejectClick}
+                  disabled={isRejecting || isApproving}
+                  data-ocid="admin.application.reject_button"
+                >
+                  {isRejecting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <XCircle className="mr-2 h-4 w-4" />
+                  )}
+                  Reject Application
+                </Button>
+                <Button
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={handleApprove}
+                  disabled={isApproving || isRejecting}
+                  data-ocid="admin.application.confirm_button"
+                >
+                  {isApproving ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                  )}
+                  Approve Application
+                </Button>
+              </div>
+            )}
           </DialogFooter>
         )}
       </DialogContent>
@@ -442,13 +525,27 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleReject = async (email: string) => {
+  const handleReject = async (email: string, reason?: string) => {
     try {
+      if (reason) {
+        localStorage.setItem(`rejection_reason_${email}`, reason);
+      }
       await rejectMutation.mutateAsync(email);
       toast.success("Application rejected");
     } catch (err: any) {
       toast.error(err.message || "Failed to reject application");
     }
+  };
+
+  const handleRejectFromRow = (email: string) => {
+    const reason = window.prompt(
+      "Enter rejection reason / अस्वीकृति का कारण दर्ज करें:",
+    );
+    if (reason === null) return; // User cancelled
+    if (reason.trim()) {
+      localStorage.setItem(`rejection_reason_${email}`, reason.trim());
+    }
+    handleReject(email, reason.trim() || undefined);
   };
 
   const handleViewDetails = (student: Student) => {
@@ -627,7 +724,9 @@ export default function AdminDashboard() {
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                onClick={() => handleReject(student.email)}
+                                onClick={() =>
+                                  handleRejectFromRow(student.email)
+                                }
                                 disabled={rejectMutation.isPending}
                                 data-ocid={`admin.applications.delete_button.${idx + 1}`}
                               >

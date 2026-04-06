@@ -1,50 +1,53 @@
 # Inter School Kawakol Admission System
 
 ## Current State
-- Step 1 registration: Class, Name, Email, Password fields with basic email format validation only
-- Login page: Email + Password fields, no forgot password option
-- No OTP verification at any step
-- Email feature is DISABLED on this plan (no real email sending capability)
+
+A full-stack school admission system with:
+- Student registration (Step 1) and admission form (Step 2)
+- Admin dashboard with approve/reject actions via modal popup
+- Print View and Excel export of applications
+- Religion stored in `form.emailId`, Caste stored in `form.mobileNumber` (workaround due to backend schema)
+- No rejection reason field in backend Student type
+- PrintableAdmissionForm does NOT display Religion or Caste fields
+- Excel export (exportToExcel.ts) does NOT include Religion or Caste columns
+- Admin reject action calls `rejectApplicationForAdmin(email, adminPassword)` — no reason parameter
+- StudentDashboard shows status badge and message, but no rejection reason display
 
 ## Requested Changes (Diff)
 
 ### Add
-- Email OTP verification step in Step 1 Registration:
-  - After filling email, student clicks "Send OTP" button
-  - OTP is generated (6-digit) and stored in backend with expiry
-  - Since email is disabled, OTP is shown in a toast/alert on screen (simulated delivery)
-  - Student enters OTP in a new input field
-  - Registration proceeds only after OTP is verified
-- Forgot Password flow accessible from Login page:
-  - "Forgot Password?" link on login page
-  - Student enters registered email → clicks "Send OTP"
-  - OTP generated, shown on screen (simulated)
-  - Student enters OTP + new password + confirm password
-  - Password reset saved to backend
-- New backend functions:
-  - `generateOtp(email: Text) : async Text` — stores OTP with 10-min expiry, returns OTP (for simulation display)
-  - `verifyOtp(email: Text, otp: Text) : async Bool` — validates OTP
-  - `resetPassword(email: Text, otp: Text, newPassword: Text) : async ()` — verifies OTP then updates password
-- New frontend page: `ForgotPasswordPage.tsx`
-- New route `/forgot-password` in App.tsx
+- **Rejection Reason input in Admin modal**: When admin clicks "Reject Application", show a text input/textarea for entering a rejection reason before confirming. This reason is stored in `sessionStorage` or `localStorage` keyed by student email (since backend Student type has no rejectionReason field).
+- **Rejection Reason display in StudentDashboard**: Below the rejection status badge and message, display the rejection reason if one exists (fetched from localStorage/sessionStorage by student email).
+- **Religion column in Excel export**: Add "Religion" column (mapped from `form.emailId`) in exportToExcel.ts.
+- **Caste column in Excel export**: Add "Caste" column (mapped from `form.mobileNumber`) in exportToExcel.ts.
 
 ### Modify
-- `RegisterPage.tsx`: Add OTP verification flow — after email is entered, user must verify via OTP before completing registration
-- `LoginPage.tsx`: Add "Forgot Password?" link below the login form
-- `main.mo`: Add OTP storage map and three new functions
-- `backend.d.ts`: Add new OTP function signatures
-- `backend.did.js`: Add new function IDL entries
-- `App.tsx`: Add `/forgot-password` route
+- **PrintableAdmissionForm**: Add Religion field (reading from `form.emailId`) and Caste field (reading from `form.mobileNumber`) to the Personal Details section, right after Category.
+- **AdminDashboard modal**: Add rejection reason textarea that appears when rejecting. Store reason to localStorage keyed as `rejection_reason_${email}` after successful rejection.
+- **AdminDashboard modal DetailRow**: Fix existing bug — Religion (line 174) currently shows `form.emailId`, Caste (line 175) shows `form.mobileNumber` — these are actually correct for the popup but labels confirm it.
+- **StudentDashboard**: When status is "rejected", read `rejection_reason_${student.email}` from localStorage and display it below the status message.
 
 ### Remove
-- Nothing removed
+- Nothing removed.
 
 ## Implementation Plan
-1. Add OTP storage (stable map of email → {otp, expiry}) in main.mo
-2. Add `generateOtp`, `verifyOtp`, `resetPassword` functions to main.mo
-3. Update backend.d.ts with new function types
-4. Update backend.did.js with new IDL entries
-5. Update RegisterPage.tsx: add "Send OTP" button after email field, OTP input, verify step before registration
-6. Create ForgotPasswordPage.tsx with full email → OTP → new password flow
-7. Update LoginPage.tsx with Forgot Password link
-8. Update App.tsx with /forgot-password route
+
+1. **AdminDashboard.tsx** — ApplicationDetailModal:
+   - Add `rejectionReason` state (string) inside the modal component
+   - When "Reject Application" button is clicked, first show a textarea asking for rejection reason (could be a sub-step: show textarea + confirm button, or use a prompt pattern)
+   - On confirm reject: save `localStorage.setItem('rejection_reason_' + email, rejectionReason)` then call `onReject(email)`
+   - Keep the approve button unchanged
+   - Also fix the handleReject in AdminDashboard (table row quick reject button) — show a simple prompt or inline textarea before rejecting
+
+2. **StudentDashboard.tsx** — Status section:
+   - After `getStatusMessage()` display, when `student.status === 'rejected'`, read `localStorage.getItem('rejection_reason_' + student.email)`
+   - If reason exists, display it in a red/orange callout box labeled "Rejection Reason" / "अस्वीकृति का कारण"
+
+3. **PrintableAdmissionForm.tsx** — Personal Details section:
+   - After the Category `<Field>`, add:
+     - `<Field label="Religion (धर्म)" value={form.emailId} />`
+     - `<Field label="Caste (जाति)" value={form.mobileNumber} />`
+
+4. **exportToExcel.ts** — After "Category" column:
+   - Add header "Religion" and "Caste"
+   - In rows map, after `form?.category || ""`, add `form?.emailId || ""` and `form?.mobileNumber || ""`
