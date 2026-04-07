@@ -117,6 +117,8 @@ export default function AdmissionFormPage() {
   const isFormDisabled =
     student?.status === "approved" || student?.status === "rejected";
 
+  const isGeneralCategory = formData.category === Category.general;
+
   const toggleDocument = (id: string) =>
     setDocumentsChecked((prev) => ({ ...prev, [id]: !prev[id] }));
 
@@ -164,27 +166,20 @@ export default function AdmissionFormPage() {
     }
 
     // --- Student Identifiers & Contact ---
-    if (!formData.studentPen?.trim()) {
-      toast.error("Student PEN is required");
-      return false;
-    }
-    if (formData.studentPen.length !== 11) {
+    // PEN, APAAR, and E-Shikshakosh are conditional (shown only if student has PAN/Aadhaar/E-Shikshakosh)
+    if (formData.studentPen && formData.studentPen.length !== 11) {
       toast.error("Student PEN must be exactly 11 characters");
       return false;
     }
-    if (!formData.apparNumber?.trim()) {
-      toast.error("APPAR Number is required");
+    // APAAR is not mandatory — only validate length if filled
+    if (formData.apparNumber && formData.apparNumber.length !== 12) {
+      toast.error("APAAR Number must be exactly 12 characters");
       return false;
     }
-    if (formData.apparNumber.length !== 12) {
-      toast.error("APPAR Number must be exactly 12 characters");
-      return false;
-    }
-    if (!formData.eShikshakoshNumber?.trim()) {
-      toast.error("E-Shikshakosh Number is required");
-      return false;
-    }
-    if (formData.eShikshakoshNumber.length !== 15) {
+    if (
+      formData.eShikshakoshNumber &&
+      formData.eShikshakoshNumber.length !== 15
+    ) {
       toast.error("E-Shikshakosh Number must be exactly 15 characters");
       return false;
     }
@@ -358,13 +353,14 @@ export default function AdmissionFormPage() {
       }
     }
 
-    // --- Documents Checklist (all mandatory) ---
-    const allRequiredDocs = isOrphanedDestitute
+    // --- Documents Checklist (all mandatory except general-disabled) ---
+    const allDocsList = isOrphanedDestitute
       ? [...DOCUMENTS, ORPHAN_DOCUMENT]
       : DOCUMENTS;
-    const uncheckedDoc = allRequiredDocs.find(
-      (doc) => !documentsChecked[doc.id],
+    const requiredDocs = allDocsList.filter(
+      (doc) => !(isGeneralCategory && doc.generalDisabled),
     );
+    const uncheckedDoc = requiredDocs.find((doc) => !documentsChecked[doc.id]);
     if (uncheckedDoc) {
       toast.error(
         `Documents Checklist: Please confirm "${uncheckedDoc.label}" is available`,
@@ -568,6 +564,7 @@ export default function AdmissionFormPage() {
           onChange={toggleDocument}
           disabled={isFormDisabled}
           isOrphanedDestitute={isOrphanedDestitute}
+          isGeneralCategory={isGeneralCategory}
         />
 
         <GuardianDeclarationSection

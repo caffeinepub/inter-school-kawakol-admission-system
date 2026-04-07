@@ -132,7 +132,13 @@ actor {
   stable var studentsStable : [Student] = [];
 
   // Stable admission number storage (separate from Student type to avoid migration issues)
-  var admissionCounter : Nat = 0;
+  // Keep old admissionCounter as stable to preserve upgrade compatibility
+  stable var admissionCounter : Nat = 0;
+  // Per-class counters for separate sequences per class (non-stable, reset on upgrade is acceptable)
+  var admissionCounter9 : Nat = 0;
+  var admissionCounter10 : Nat = 0;
+  var admissionCounter11 : Nat = 0;
+  var admissionCounter12 : Nat = 0;
   var admissionNumbersStable : [(Text, Text)] = []; // (email, admissionNumber)
 
   let students = Map.empty<Text, Student>();
@@ -211,6 +217,16 @@ actor {
     Array.tabulate<T>(n + 1, func(i : Nat) : T {
       if (i < n) { arr[i] } else { elem }
     })
+  };
+
+  // Get next counter for a given class and increment it
+  private func nextClassCounter(_class : Class) : Nat {
+    switch (_class) {
+      case (#class09th) { admissionCounter9 += 1; admissionCounter9 };
+      case (#class10th) { admissionCounter10 += 1; admissionCounter10 };
+      case (#class11th) { admissionCounter11 += 1; admissionCounter11 };
+      case (#class12th) { admissionCounter12 += 1; admissionCounter12 };
+    }
   };
 
   // --- OTP Helpers ---
@@ -353,9 +369,9 @@ actor {
       isStudent = true;
     };
     userProfiles.add(caller, profile);
-    // Generate and store unique admission number
-    admissionCounter += 1;
-    let admNo = "ISK/" # classNumText(_class) # "/" # currentAcademicYear() # "/-" # padNat(admissionCounter, 5);
+    // Generate and store unique admission number (per-class counter)
+    let counter = nextClassCounter(_class);
+    let admNo = "ISK/" # classNumText(_class) # "/" # currentAcademicYear() # "/-" # padNat(counter, 5);
     admissionNumbersStable := arrayAppend(admissionNumbersStable, (email, admNo));
   };
 

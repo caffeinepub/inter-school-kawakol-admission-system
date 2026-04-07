@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useState } from "react";
 import type { AdmissionForm } from "../backend";
 
@@ -24,6 +25,14 @@ export default function StudentIdentifiersSection({
   disabled,
 }: StudentIdentifiersSectionProps) {
   const [errors, setErrors] = useState<FieldErrors>({});
+  // Gate: Does the child have a PAN card and Aadhaar ID?
+  const [hasPanAadhaar, setHasPanAadhaar] = useState<"yes" | "no" | null>(
+    formData.studentPen || formData.apparNumber ? "yes" : null,
+  );
+  // Gate: Does the child have an E-Shikshakosh number?
+  const [hasEShikshakosh, setHasEShikshakosh] = useState<"yes" | "no" | null>(
+    formData.eShikshakoshNumber ? "yes" : null,
+  );
 
   const validateField = (name: keyof FieldErrors, value: string): string => {
     switch (name) {
@@ -33,9 +42,9 @@ export default function StudentIdentifiersSection({
           return "Student PEN must be exactly 11 characters";
         return "";
       case "apparNumber":
-        if (!value) return "APPAR Number is required";
-        if (value.length !== 12)
-          return "APPAR Number must be exactly 12 characters";
+        // APAAR is optional — only validate length if provided
+        if (value && value.length !== 12)
+          return "APAAR Number must be exactly 12 characters";
         return "";
       case "eShikshakoshNumber":
         if (!value) return "E-Shikshakosh Number is required";
@@ -63,90 +72,211 @@ export default function StudentIdentifiersSection({
     setFormData({ ...formData, [name]: value });
   };
 
+  const handlePanAadhaarChange = (val: "yes" | "no") => {
+    setHasPanAadhaar(val);
+    if (val === "no") {
+      // Clear PEN and APAAR fields when No is selected
+      setFormData({ ...formData, studentPen: "", apparNumber: "" });
+      setErrors((prev) => ({ ...prev, studentPen: "", apparNumber: "" }));
+    }
+  };
+
+  const handleEShikshakoshChange = (val: "yes" | "no") => {
+    setHasEShikshakosh(val);
+    if (val === "no") {
+      // Clear E-Shikshakosh field when No is selected
+      setFormData({ ...formData, eShikshakoshNumber: "" });
+      setErrors((prev) => ({ ...prev, eShikshakoshNumber: "" }));
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Student Identifiers &amp; Contact</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid md:grid-cols-2 gap-4">
-          {/* Student PEN */}
-          <div className="space-y-1">
-            <Label htmlFor="studentPen">
-              Student Permanent Enrolment Number (PEN) *
-              <span className="ml-1 text-xs text-muted-foreground">
-                (exactly 11 characters)
-              </span>
-            </Label>
-            <Input
-              id="studentPen"
-              value={formData.studentPen || ""}
-              onChange={(e) => handleChange("studentPen", e.target.value)}
-              placeholder="11-character PEN"
-              maxLength={11}
-              disabled={disabled}
-              className={
-                errors.studentPen
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }
-            />
-            {errors.studentPen && (
-              <p className="text-xs text-destructive">{errors.studentPen}</p>
-            )}
-          </div>
-
-          {/* APPAR Number */}
-          <div className="space-y-1">
-            <Label htmlFor="apparNumber">
-              APPAR Number *
-              <span className="ml-1 text-xs text-muted-foreground">
-                (exactly 12 characters)
-              </span>
-            </Label>
-            <Input
-              id="apparNumber"
-              value={formData.apparNumber || ""}
-              onChange={(e) => handleChange("apparNumber", e.target.value)}
-              placeholder="12-character APPAR Number"
-              maxLength={12}
-              disabled={disabled}
-              className={
-                errors.apparNumber
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }
-            />
-            {errors.apparNumber && (
-              <p className="text-xs text-destructive">{errors.apparNumber}</p>
-            )}
-          </div>
-        </div>
-
-        {/* E-Shikshakosh Number */}
-        <div className="space-y-1">
-          <Label htmlFor="eShikshakoshNumber">
-            E-Shikshakosh Number *
-            <span className="ml-1 text-xs text-muted-foreground">
-              (exactly 15 characters)
+      <CardContent className="space-y-6">
+        {/* PAN/Aadhaar gate */}
+        <div className="space-y-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <Label className="font-semibold text-sm text-blue-900">
+            Does the child have a PAN card and an Aadhaar ID? *
+            <span
+              className="block text-xs font-normal text-blue-700 mt-0.5"
+              lang="hi"
+            >
+              क्या बच्चे के पास PAN कार्ड और आधार आईडी है?
             </span>
           </Label>
-          <Input
-            id="eShikshakoshNumber"
-            value={formData.eShikshakoshNumber || ""}
-            onChange={(e) => handleChange("eShikshakoshNumber", e.target.value)}
-            placeholder="15-character E-Shikshakosh Number"
-            maxLength={15}
+          <RadioGroup
+            value={hasPanAadhaar ?? ""}
+            onValueChange={(v) => handlePanAadhaarChange(v as "yes" | "no")}
             disabled={disabled}
-            className={
-              errors.eShikshakoshNumber
-                ? "border-destructive focus-visible:ring-destructive"
-                : ""
-            }
-          />
-          {errors.eShikshakoshNumber && (
-            <p className="text-xs text-destructive">
-              {errors.eShikshakoshNumber}
+            className="flex gap-6"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="yes" id="pan-aadhaar-yes" />
+              <Label
+                htmlFor="pan-aadhaar-yes"
+                className="cursor-pointer font-medium text-green-700"
+              >
+                Yes / हाँ
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="no" id="pan-aadhaar-no" />
+              <Label
+                htmlFor="pan-aadhaar-no"
+                className="cursor-pointer font-medium text-red-700"
+              >
+                No / नहीं
+              </Label>
+            </div>
+          </RadioGroup>
+
+          {hasPanAadhaar === "yes" && (
+            <div className="grid md:grid-cols-2 gap-4 mt-3">
+              {/* Student PEN */}
+              <div className="space-y-1">
+                <Label htmlFor="studentPen">
+                  Student Permanent Enrolment Number (PEN) *
+                  <span className="ml-1 text-xs text-muted-foreground">
+                    (exactly 11 characters)
+                  </span>
+                </Label>
+                <Input
+                  id="studentPen"
+                  value={formData.studentPen || ""}
+                  onChange={(e) => handleChange("studentPen", e.target.value)}
+                  placeholder="11-character PEN"
+                  maxLength={11}
+                  disabled={disabled}
+                  className={
+                    errors.studentPen
+                      ? "border-destructive focus-visible:ring-destructive"
+                      : ""
+                  }
+                />
+                {errors.studentPen && (
+                  <p className="text-xs text-destructive">
+                    {errors.studentPen}
+                  </p>
+                )}
+              </div>
+
+              {/* APAAR Number — Not mandatory */}
+              <div className="space-y-1">
+                <Label htmlFor="apparNumber">
+                  APAAR Number
+                  <span className="ml-1 text-xs text-muted-foreground">
+                    (12 characters, optional)
+                  </span>
+                </Label>
+                <Input
+                  id="apparNumber"
+                  value={formData.apparNumber || ""}
+                  onChange={(e) => handleChange("apparNumber", e.target.value)}
+                  placeholder="12-character APAAR Number (optional)"
+                  maxLength={12}
+                  disabled={disabled}
+                  className={
+                    errors.apparNumber
+                      ? "border-destructive focus-visible:ring-destructive"
+                      : ""
+                  }
+                />
+                {errors.apparNumber && (
+                  <p className="text-xs text-destructive">
+                    {errors.apparNumber}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {hasPanAadhaar === "no" && (
+            <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded border border-amber-200">
+              ⚠ PEN and APAAR Number will not be filled.
+              <span className="block" lang="hi">
+                PEN और APAAR नंबर भरा नहीं जाएगा।
+              </span>
+            </p>
+          )}
+        </div>
+
+        {/* E-Shikshakosh gate */}
+        <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
+          <Label className="font-semibold text-sm text-green-900">
+            Does the child have an E-Shikshakosh Number? *
+            <span
+              className="block text-xs font-normal text-green-700 mt-0.5"
+              lang="hi"
+            >
+              क्या बच्चे के पास E-Shikshakosh नंबर है?
+            </span>
+          </Label>
+          <RadioGroup
+            value={hasEShikshakosh ?? ""}
+            onValueChange={(v) => handleEShikshakoshChange(v as "yes" | "no")}
+            disabled={disabled}
+            className="flex gap-6"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="yes" id="eshiksha-yes" />
+              <Label
+                htmlFor="eshiksha-yes"
+                className="cursor-pointer font-medium text-green-700"
+              >
+                Yes / हाँ
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="no" id="eshiksha-no" />
+              <Label
+                htmlFor="eshiksha-no"
+                className="cursor-pointer font-medium text-red-700"
+              >
+                No / नहीं
+              </Label>
+            </div>
+          </RadioGroup>
+
+          {hasEShikshakosh === "yes" && (
+            <div className="space-y-1 mt-3">
+              <Label htmlFor="eShikshakoshNumber">
+                E-Shikshakosh Number *
+                <span className="ml-1 text-xs text-muted-foreground">
+                  (exactly 15 characters)
+                </span>
+              </Label>
+              <Input
+                id="eShikshakoshNumber"
+                value={formData.eShikshakoshNumber || ""}
+                onChange={(e) =>
+                  handleChange("eShikshakoshNumber", e.target.value)
+                }
+                placeholder="15-character E-Shikshakosh Number"
+                maxLength={15}
+                disabled={disabled}
+                className={
+                  errors.eShikshakoshNumber
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : ""
+                }
+              />
+              {errors.eShikshakoshNumber && (
+                <p className="text-xs text-destructive">
+                  {errors.eShikshakoshNumber}
+                </p>
+              )}
+            </div>
+          )}
+
+          {hasEShikshakosh === "no" && (
+            <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded border border-amber-200">
+              ⚠ E-Shikshakosh Number will not be filled.
+              <span className="block" lang="hi">
+                E-Shikshakosh नंबर भरा नहीं जाएगा।
+              </span>
             </p>
           )}
         </div>
