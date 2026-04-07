@@ -25,7 +25,7 @@ export default function StudentIdentifiersSection({
   disabled,
 }: StudentIdentifiersSectionProps) {
   const [errors, setErrors] = useState<FieldErrors>({});
-  // Gate: Does the child have a PAN card and Aadhaar ID?
+  // Gate: Does the child have a Permanent Enrollment Number (PEN) & APAAR Number?
   const [hasPanAadhaar, setHasPanAadhaar] = useState<"yes" | "no" | null>(
     formData.studentPen || formData.apparNumber ? "yes" : null,
   );
@@ -96,15 +96,16 @@ export default function StudentIdentifiersSection({
         <CardTitle>Student Identifiers &amp; Contact</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* PAN/Aadhaar gate */}
+        {/* PEN/APAAR gate */}
         <div className="space-y-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <Label className="font-semibold text-sm text-blue-900">
-            Does the child have a PAN card and an Aadhaar ID? *
+            Does the child have Permanent Enrollment Number (PEN) &amp; APAAR
+            Number? *
             <span
               className="block text-xs font-normal text-blue-700 mt-0.5"
               lang="hi"
             >
-              क्या बच्चे के पास PAN कार्ड और आधार आईडी है?
+              क्या बच्चे के पास स्थायी नामांकन संख्या (PEN) और APAAR संख्या है?
             </span>
           </Label>
           <RadioGroup
