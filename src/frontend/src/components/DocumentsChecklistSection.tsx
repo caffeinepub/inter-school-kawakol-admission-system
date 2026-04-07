@@ -45,18 +45,29 @@ const DOCUMENTS = [
   },
 ];
 
+const ORPHAN_DOCUMENT = {
+  id: "deathCertificate",
+  label: "Mother & Father Death Certificate",
+  hindi: "माता एवं पिता का मृत्यु प्रमाण पत्र",
+};
+
 interface Props {
   checked: Record<string, boolean>;
   onChange: (id: string) => void;
   disabled?: boolean;
+  isOrphanedDestitute?: boolean;
 }
 
 export default function DocumentsChecklistSection({
   checked,
   onChange,
   disabled,
+  isOrphanedDestitute,
 }: Props) {
-  const allChecked = DOCUMENTS.every((doc) => checked[doc.id]);
+  const allDocs = isOrphanedDestitute
+    ? [...DOCUMENTS, ORPHAN_DOCUMENT]
+    : DOCUMENTS;
+  const allChecked = allDocs.every((doc) => checked[doc.id]);
 
   return (
     <Card className="border-red-200">
@@ -82,14 +93,14 @@ export default function DocumentsChecklistSection({
       </CardHeader>
       <CardContent>
         <div className="grid gap-3 sm:grid-cols-2">
-          {DOCUMENTS.map((doc) => (
+          {allDocs.map((doc) => (
             <div
               key={doc.id}
               className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors ${
                 checked[doc.id]
                   ? "border-green-400 bg-green-50"
                   : "border-red-200 bg-red-50/40 hover:bg-red-50/70"
-              }`}
+              } ${doc.id === "deathCertificate" ? "sm:col-span-2 border-orange-300 bg-orange-50/40" : ""}`}
             >
               <Checkbox
                 id={doc.id}
@@ -101,6 +112,11 @@ export default function DocumentsChecklistSection({
               <Label htmlFor={doc.id} className="cursor-pointer leading-snug">
                 <span className="block font-medium text-sm">
                   {doc.label} <span className="text-red-500">*</span>
+                  {doc.id === "deathCertificate" && (
+                    <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-normal">
+                      अनाथ/निराश्रित
+                    </span>
+                  )}
                 </span>
                 <span
                   className="block text-xs text-muted-foreground mt-0.5"
@@ -117,4 +133,4 @@ export default function DocumentsChecklistSection({
   );
 }
 
-export { DOCUMENTS };
+export { DOCUMENTS, ORPHAN_DOCUMENT };

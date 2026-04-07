@@ -1,6 +1,8 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "@tanstack/react-router";
 import { AlertCircle, Loader2, Save, Send } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -21,6 +23,7 @@ import Class11And12SubjectSelection from "../components/Class11And12SubjectSelec
 import ContactDetailsSection from "../components/ContactDetailsSection";
 import DocumentsChecklistSection, {
   DOCUMENTS,
+  ORPHAN_DOCUMENT,
 } from "../components/DocumentsChecklistSection";
 import GuardianDeclarationSection from "../components/GuardianDeclarationSection";
 import PersonalDetailsSection from "../components/PersonalDetailsSection";
@@ -101,6 +104,8 @@ export default function AdmissionFormPage() {
   const [documentsChecked, setDocumentsChecked] = useState<
     Record<string, boolean>
   >({});
+  const [isOrphanedDestitute, setIsOrphanedDestitute] =
+    useState<boolean>(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -354,7 +359,12 @@ export default function AdmissionFormPage() {
     }
 
     // --- Documents Checklist (all mandatory) ---
-    const uncheckedDoc = DOCUMENTS.find((doc) => !documentsChecked[doc.id]);
+    const allRequiredDocs = isOrphanedDestitute
+      ? [...DOCUMENTS, ORPHAN_DOCUMENT]
+      : DOCUMENTS;
+    const uncheckedDoc = allRequiredDocs.find(
+      (doc) => !documentsChecked[doc.id],
+    );
     if (uncheckedDoc) {
       toast.error(
         `Documents Checklist: Please confirm "${uncheckedDoc.label}" is available`,
@@ -492,10 +502,72 @@ export default function AdmissionFormPage() {
           />
         )}
 
+        {/* Orphaned and Destitute */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              Orphaned and Destitute / अनाथ एवं निराश्रित
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-muted-foreground" lang="hi">
+                क्या छात्र/छात्रा अनाथ एवं निराश्रित है? / Is the student orphaned and
+                destitute?
+              </p>
+              <RadioGroup
+                value={isOrphanedDestitute ? "yes" : "no"}
+                onValueChange={(val) => {
+                  const isYes = val === "yes";
+                  setIsOrphanedDestitute(isYes);
+                  if (!isYes) {
+                    setDocumentsChecked((prev) => {
+                      const updated = { ...prev };
+                      updated.deathCertificate = false;
+                      return updated;
+                    });
+                  }
+                }}
+                disabled={isFormDisabled}
+                className="flex gap-6 mt-1"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="orphan-yes" />
+                  <Label
+                    htmlFor="orphan-yes"
+                    className="cursor-pointer font-medium text-green-700"
+                  >
+                    Yes / हाँ
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="orphan-no" />
+                  <Label
+                    htmlFor="orphan-no"
+                    className="cursor-pointer font-medium text-red-700"
+                  >
+                    No / नहीं
+                  </Label>
+                </div>
+              </RadioGroup>
+              {isOrphanedDestitute && (
+                <p className="text-sm text-orange-600 font-medium mt-1">
+                  ⚠ Mother &amp; Father Death Certificate is required in the
+                  Documents Checklist below.
+                  <span className="block text-xs" lang="hi">
+                    माता एवं पिता का मृत्यु प्रमाण पत्र दस्तावेज़ चेकलिस्ट में आवश्यक है।
+                  </span>
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         <DocumentsChecklistSection
           checked={documentsChecked}
           onChange={toggleDocument}
           disabled={isFormDisabled}
+          isOrphanedDestitute={isOrphanedDestitute}
         />
 
         <GuardianDeclarationSection
